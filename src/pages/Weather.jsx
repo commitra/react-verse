@@ -2,27 +2,29 @@
  * WEATHER DASHBOARD TODOs
  * -----------------------
  * Easy:
- *  - [ ] Add °C / °F toggle
- *  - [ ] Show weather icon (current + forecast)
- *  - [ ] Show feels-like temperature & wind speed
- *  - [ ] Add loading skeleton instead of plain text
- *  - [ ] Style forecast cards with condition color badges
+ * - [x] Extract API call into /src/services/weather.js and add caching
+ * - [ ] Add °C / °F toggle
+ * - [ ] Show weather icon (current + forecast)
+ * - [ ] Show feels-like temperature & wind speed
+ * - [ ] Add loading skeleton instead of plain text
+ * - [ ] Style forecast cards with condition color badges
  * Medium:
- *  - [ ] Dynamic background / gradient based on condition (sunny, rain, snow)
- *  - [ ] Input debounced search (on stop typing)
- *  - [ ] Persist last searched city (localStorage)
- *  - [ ] Add error retry button component
- *  - [ ] Add favorites list (pin cities)
+ * - [ ] Dynamic background / gradient based on condition (sunny, rain, snow)
+ * - [ ] Input debounced search (on stop typing)
+ * - [ ] Persist last searched city (localStorage)
+ * - [ ] Add error retry button component
+ * - [ ] Add favorites list (pin cities)
  * Advanced:
- *  - [ ] Hourly forecast visualization (line / area chart)
- *  - [ ] Animate background transitions
- *  - [ ] Add geolocation: auto-detect user city (with permission)
- *  - [ ] Extract API call into /src/services/weather.js and add caching
+ * - [ ] Hourly forecast visualization (line / area chart)
+ * - [ ] Animate background transitions
+ * - [ ] Add geolocation: auto-detect user city (with permission)
  */
+
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import { getWeatherData, clearWeatherCache, getCacheStats } from '../services/weather.js';
 
 export default function Weather() {
   const [city, setCity] = useState('London');
@@ -33,15 +35,14 @@ export default function Weather() {
 
   useEffect(() => {
     fetchWeather(city);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchWeather(c) {
     try {
-      setLoading(true); setError(null);
-      const res = await fetch(`https://wttr.in/${encodeURIComponent(c)}?format=j1`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
+      setLoading(true);
+      setError(null);
+      const json = await getWeatherData(c); // Using the service instead of direct fetch
       setData(json);
     } catch (e) {
       setError(e);
@@ -50,6 +51,19 @@ export default function Weather() {
     }
   }
 
+  // Helper function to clear cache and refetch (for testing)
+  const handleClearCache = () => {
+    clearWeatherCache();
+    fetchWeather(city);
+  };
+
+  // Helper function to show cache stats (for development)
+  const handleShowCacheStats = () => {
+    const stats = getCacheStats();
+    console.log('Cache Statistics:', stats);
+    alert(`Cache has ${stats.size} entries. Check console for details.`);
+  };
+
   const current = data?.current_condition?.[0];
   const forecast = data?.weather?.slice(0,3) || [];
 
@@ -57,40 +71,56 @@ export default function Weather() {
   const displayTemp = (c) => unit === 'C' ? c : Math.round((c * 9/5) + 32);
 
   return (
-    <div>
-      <h2>Weather Dashboard</h2>
-      <form onSubmit={e => { e.preventDefault(); fetchWeather(city); }} className="inline-form">
-        <input value={city} onChange={e => setCity(e.target.value)} placeholder="Enter city" />
-        <button type="submit">Fetch</button>
-      </form>
-
-      {/* Toggle button */}
-      <div style={{ margin: '10px 0' }}>
-        <button onClick={() => setUnit(unit === 'C' ? 'F' : 'C')}>
-          Switch to °{unit === 'C' ? 'F' : 'C'}
-        </button>
+    <div className="dashboard-page">
+      <div className="dashboard-header">
+        <h1>🌤️ Weather Dashboard</h1>
+        <form onSubmit={(e) => {e.preventDefault(); fetchWeather(city)}}>
+          <input 
+            type="text" 
+            value={city} 
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="Enter city name..." 
+          />
+          <button type="submit">Get Weather</button>
+        </form>
+        
+        {/* Development tools - you can remove these later */}
+        <div style={{marginTop: '10px', display: 'flex', gap: '10px'}}>
+          <button onClick={handleClearCache} style={{fontSize: '12px'}}>
+            Clear Cache
+          </button>
+          <button onClick={handleShowCacheStats} style={{fontSize: '12px'}}>
+            Cache Stats
+          </button>
+          <button onClick={() => setUnit(unit === 'C' ? 'F' : 'C')} style={{fontSize: '12px'}}>
+            Switch to °{unit === 'C' ? 'F' : 'C'}
+          </button>
+        </div>
       </div>
 
       {loading && <Loading />}
-      <ErrorMessage error={error} />
+      {error && <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />}
 
-      {current && (
-        <Card title={`Current in ${city}`}>          
-          <p>Temperature: {displayTemp(Number(current.temp_C))}°{unit}</p>
-          <p>Humidity: {current.humidity}%</p>
-          <p>Desc: {current.weatherDesc?.[0]?.value}</p>
-        </Card>
-      )}
-
-      <div className="grid">
-        {forecast.map(day => (
-          <Card key={day.date} title={day.date}>
-            <p>Avg Temp: {displayTemp(Number(day.avgtempC))}°{unit}</p>
-            <p>Sunrise: {day.astronomy?.[0]?.sunrise}</p>
+      {data && !loading && (
+        <div className="dashboard-grid">
+          {/* Current Weather */}
+          <Card title="Current Weather" size="large">
+            <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
+            <p><strong>Temperature:</strong> {displayTemp(Number(current.temp_C))}°{unit}</p>
+            <p><strong>Humidity:</strong> {current.humidity}%</p>
+            <p><strong>Desc:</strong> {current.weatherDesc?.[0]?.value}</p>
           </Card>
-        ))}
-      </div>
+
+          {/* 3-Day Forecast */}
+          {forecast.map((day, i) => (
+            <Card key={i} title={i === 0 ? 'Today' : `Day ${i+1}`}>
+              <p><strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}°{unit}</p>
+              <p><strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}</p>
+              <p><strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}</p>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
