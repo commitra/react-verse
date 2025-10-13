@@ -29,6 +29,7 @@ export default function Weather() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [unit, setUnit] = useState('C'); // °C by default
 
   useEffect(() => {
     fetchWeather(city);
@@ -52,6 +53,9 @@ export default function Weather() {
   const current = data?.current_condition?.[0];
   const forecast = data?.weather?.slice(0,3) || [];
 
+  // Helper to convert °C to °F
+  const displayTemp = (c) => unit === 'C' ? c : Math.round((c * 9/5) + 32);
+
   return (
     <div>
       <h2>Weather Dashboard</h2>
@@ -59,25 +63,34 @@ export default function Weather() {
         <input value={city} onChange={e => setCity(e.target.value)} placeholder="Enter city" />
         <button type="submit">Fetch</button>
       </form>
+
+      {/* Toggle button */}
+      <div style={{ margin: '10px 0' }}>
+        <button onClick={() => setUnit(unit === 'C' ? 'F' : 'C')}>
+          Switch to °{unit === 'C' ? 'F' : 'C'}
+        </button>
+      </div>
+
       {loading && <Loading />}
       <ErrorMessage error={error} />
+
       {current && (
         <Card title={`Current in ${city}`}>          
-          <p>Temperature: {current.temp_C}°C</p>
+          <p>Temperature: {displayTemp(Number(current.temp_C))}°{unit}</p>
           <p>Humidity: {current.humidity}%</p>
           <p>Desc: {current.weatherDesc?.[0]?.value}</p>
-          {/* TODO: Dynamic background based on weather condition */}
         </Card>
       )}
+
       <div className="grid">
         {forecast.map(day => (
           <Card key={day.date} title={day.date}>
-            <p>Avg Temp: {day.avgtempC}°C</p>
+            <p>Avg Temp: {displayTemp(Number(day.avgtempC))}°{unit}</p>
             <p>Sunrise: {day.astronomy?.[0]?.sunrise}</p>
           </Card>
         ))}
       </div>
-      {/* TODO: Add search history & favorites */}
     </div>
   );
 }
+
