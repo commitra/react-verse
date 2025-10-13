@@ -56,7 +56,23 @@ input, select { background:var(--bg-alt); }
 
 /* Status */
 .loading { padding:0.5rem 0; opacity:0.8; }
-.error { color:var(--danger); font-weight:600; }
+.error { 
+  color:var(--danger); 
+  font-weight:600; 
+  padding: 1rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  text-align: center;
+}
+.error-message {
+  margin-bottom: 0.5rem;
+}
+.retry-button:hover {
+  background: #005a9e !important;
+  transform: translateY(-1px);
+}
 .correct { background: #16a34a !important; color:#fff; }
 .wrong { background:#dc2626 !important; color:#fff; }
 
