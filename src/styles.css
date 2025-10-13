@@ -1,0 +1,72 @@
+/* Light/Dark theme variables */
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f5f5f7;
+  --text: #1a1a1a;
+  --border: #d0d0d0;
+  --primary: #2563eb;
+  --danger: #dc2626;
+  --radius: 8px;
+  --transition: 0.25s ease;
+}
+.theme-dark, [data-theme="dark"], .theme-dark :root {
+  --bg: #0f172a;
+  --bg-alt: #1e293b;
+  --text: #f1f5f9;
+  --border: #334155;
+  --primary: #3b82f6;
+  --danger: #f87171;
+}
+body, .app { background: var(--bg); color: var(--text); font-family: system-ui, Arial, sans-serif; margin:0; min-height:100vh; }
+.container { padding: 1rem clamp(1rem, 2vw, 2rem); }
+a { color: var(--primary); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+/* Navbar */
+.navbar { display:flex; align-items:center; gap:1rem; padding:0.75rem 1rem; background:var(--bg-alt); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+.navbar .logo { margin:0; font-size:1.1rem; }
+.navbar ul { list-style:none; display:flex; gap:0.75rem; margin:0; padding:0; }
+.navbar a.active { font-weight:600; }
+.nav-toggle { display:none; }
+@media (max-width: 900px){
+  .navbar ul { flex-direction:column; position:absolute; left:0; right:0; top:56px; background:var(--bg-alt); padding:1rem; display:none; }
+  body.nav-open .navbar ul { display:flex; }
+  .nav-toggle { display:block; background:none; border:1px solid var(--border); padding:0.5rem 0.75rem; border-radius:var(--radius); }
+}
+
+/* Layout */
+.grid { display:grid; gap:1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top:1rem; }
+.flex { display:flex; }
+.gap { gap:1rem; }
+.wrap { flex-wrap:wrap; }
+.inline-form { display:flex; gap:0.5rem; margin:1rem 0; }
+
+/* Cards */
+.card { background:var(--bg-alt); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; display:flex; flex-direction:column; gap:0.5rem; box-shadow:0 1px 2px rgba(0,0,0,0.06); }
+.card h3 { margin:0 0 .25rem; font-size:1rem; }
+.card-footer { margin-top:auto; font-size:0.85rem; opacity:0.8; }
+.chart-placeholder { background: repeating-linear-gradient(45deg, var(--bg), var(--bg) 10px, var(--bg-alt) 10px, var(--bg-alt) 20px); border:1px dashed var(--border); padding:2rem; text-align:center; border-radius:var(--radius); }
+
+/* Buttons & inputs */
+button, input, select { font: inherit; padding:0.5rem 0.75rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--text); }
+button { cursor:pointer; background:var(--primary); color:#fff; border-color:var(--primary); transition:var(--transition); }
+button:hover { filter:brightness(1.1); }
+button:disabled { opacity:0.5; cursor:not-allowed; }
+input, select { background:var(--bg-alt); }
+
+/* Status */
+.loading { padding:0.5rem 0; opacity:0.8; }
+.error { color:var(--danger); font-weight:600; }
+.correct { background: #16a34a !important; color:#fff; }
+.wrong { background:#dc2626 !important; color:#fff; }
+
+img { border-radius:var(--radius); }
+
+/* Theme switcher */
+.theme-switcher { position:fixed; bottom:1rem; right:1rem; }
+.theme-switcher button { background:var(--bg-alt); color:var(--text); border:1px solid var(--border); }
+
+/* Utilities */
+blockquote { margin:0; font-style:italic; }
+
+/* TODO: Add prefers-color-scheme auto detection */
