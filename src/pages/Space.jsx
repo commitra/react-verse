@@ -68,7 +68,7 @@ export default function Space() {
       setError(e);
     }
   }
-
+//leaflet map component
   return (
     <div>
       <h2>Space & Astronomy</h2>
