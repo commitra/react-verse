@@ -19,36 +19,40 @@
  * - [ ] Animate background transitions
  * - [ ] Add geolocation: auto-detect user city (with permission)
  */
-import { useEffect, useState } from 'react';
-import Loading from '../components/Loading.jsx';
-import ErrorMessage from '../components/ErrorMessage.jsx';
-import Card from '../components/Card.jsx';
-import { getWeatherData, clearWeatherCache, getCacheStats } from '../services/weather.js';
+import { useEffect, useState } from "react";
+import Loading from "../components/Loading.jsx";
+import ErrorMessage from "../components/ErrorMessage.jsx";
+import Card from "../components/Card.jsx";
+import {
+  getWeatherData,
+  clearWeatherCache,
+  getCacheStats,
+} from "../services/weather.js";
 
 export default function Weather() {
   const [city, setCity] = useState(() => {
-    return localStorage.getItem('lastCity') || 'London';
+    return localStorage.getItem("lastCity") || "London";
   });
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [unit, setUnit] = useState('C'); // °C by default
+  const [unit, setUnit] = useState("C"); // °C by default
 
   useEffect(() => {
     fetchWeather(city);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   async function fetchWeather(c) {
     try {
       setLoading(true);
       setError(null);
 
-      const json = await getWeatherData(c);// Using the service instead of direct fetch
+      const json = await getWeatherData(c); // Using the service instead of direct fetch
       setData(json);
 
       // Save the searched city to localStorage
-      localStorage.setItem('lastCity', c);
+      localStorage.setItem("lastCity", c);
     } catch (e) {
       setError(e);
     } finally {
@@ -71,7 +75,7 @@ export default function Weather() {
   // Helper function to show cache stats (for development)
   const handleShowCacheStats = () => {
     const stats = getCacheStats();
-    console.log('Cache Statistics:', stats);
+    console.log("Cache Statistics:", stats);
     alert(`Cache has ${stats.size} entries. Check console for details.`);
   };
 
@@ -79,7 +83,20 @@ export default function Weather() {
   const forecast = data?.weather?.slice(0, 3) || [];
 
   // Helper to convert °C to °F
-  const displayTemp = (c) => (unit === 'C' ? c : Math.round((c * 9) / 5 + 32));
+  const displayTemp = (c) => (unit === "C" ? c : Math.round((c * 9) / 5 + 32));
+
+  const getBadgeStyle = (condition) => {
+    if (!condition) return { color: "#E0E0E0", label: "Clear 🌤️" };
+
+    const desc = condition.toLowerCase();
+    if (desc.includes("sun")) return { color: "#FFD54F", label: "Sunny ☀️" };
+    if (desc.includes("rain")) return { color: "#4FC3F7", label: "Rainy 🌧️" };
+    if (desc.includes("snow")) return { color: "#81D4FA", label: "Snowy ❄️" };
+    if (desc.includes("cloud")) return { color: "#B0BEC5", label: "Cloudy ☁️" };
+    if (desc.includes("storm") || desc.includes("thunder"))
+      return { color: "#9575CD", label: "Storm ⛈️" };
+    return { color: "#E0E0E0", label: "Clear 🌤️" };
+  };
 
   return (
     <div className="dashboard-page">
@@ -96,24 +113,29 @@ export default function Weather() {
         </form>
 
         {/* Development tools - you can remove these later */}
-        <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-          <button onClick={handleClearCache} style={{ fontSize: '12px' }}>
+        <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+          <button onClick={handleClearCache} style={{ fontSize: "12px" }}>
             Clear Cache
           </button>
-          <button onClick={handleShowCacheStats} style={{ fontSize: '12px' }}>
+          <button onClick={handleShowCacheStats} style={{ fontSize: "12px" }}>
             Cache Stats
           </button>
           <button
-            onClick={() => setUnit(unit === 'C' ? 'F' : 'C')}
-            style={{ fontSize: '12px' }}
+            onClick={() => setUnit(unit === "C" ? "F" : "C")}
+            style={{ fontSize: "12px" }}
           >
-            Switch to °{unit === 'C' ? 'F' : 'C'}
+            Switch to °{unit === "C" ? "F" : "C"}
           </button>
         </div>
       </div>
 
       {loading && <Loading />}
-      {error && <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />}
+      {error && (
+        <ErrorMessage
+          message={error.message}
+          onRetry={() => fetchWeather(city)}
+        />
+      )}
 
       {data && !loading && (
         <div className="dashboard-grid">
@@ -121,7 +143,8 @@ export default function Weather() {
           <Card title="Current Weather" size="large">
             <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
             <p>
-              <strong>Temperature:</strong> {displayTemp(Number(current.temp_C))}°{unit}
+              <strong>Temperature:</strong>{" "}
+              {displayTemp(Number(current.temp_C))}°{unit}
             </p>
             <p>
               <strong>Humidity:</strong> {current.humidity}%
@@ -132,22 +155,44 @@ export default function Weather() {
           </Card>
 
           {/* 3-Day Forecast */}
-          {forecast.map((day, i) => (
-            <Card key={i} title={i === 0 ? 'Today' : `Day ${i + 1}`}>
-              <p>
-                <strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}°{unit}
-              </p>
-              <p>
-                <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
-              </p>
-              <p>
-                <strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}
-              </p>
-            </Card>
-          ))}
+          {forecast.map((day, i) => {
+            const condition =
+              day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+            const badge = getBadgeStyle(condition);
+
+            return (
+              <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
+                {/* Badge Section */}
+                <div
+                  style={{
+                    backgroundColor: badge.color,
+                    borderRadius: "8px",
+                    padding: "4px 8px",
+                    display: "inline-block",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginBottom: "8px",
+                    color: "#333",
+                  }}
+                >
+                  {badge.label}
+                </div>
+
+                <p>
+                  <strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}
+                  °{unit}
+                </p>
+                <p>
+                  <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
+                </p>
+                <p>
+                  <strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}
+                </p>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-
