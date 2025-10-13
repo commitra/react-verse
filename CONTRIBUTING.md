@@ -1,6 +1,6 @@
 # Contributing Guide (Hacktoberfest)
 
-Thanks for your interest in contributing to React Verse! This project is intentionally structured to welcome newcomers.
+Thanks for your interest in contributing to React Verse! This project is intentionally structured to welcome newcomers & hacktofest!
 
 ## Getting Started
 1. Fork the repo & clone locally
