@@ -362,20 +362,97 @@ blockquote { margin:0; font-style:italic; }
 
 /* Storm animations */
 .storm-layer { position: absolute; inset: 0; }
+
+/* Base lightning styles */
 .lightning { 
   position: absolute; 
-  top: 20%; 
-  left: 30%; 
   width: 2px; 
-  height: 60%; 
   background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.1)); 
   box-shadow: 0 0 20px rgba(255,255,255,0.8); 
-  animation: lightning-flash 4s ease-in-out infinite; 
   opacity: 0; 
+  z-index: 1;
 }
-@keyframes lightning-flash { 
+
+/* Primary lightning - main central bolt */
+.lightning--primary {
+  top: 15%; 
+  left: 30%; 
+  height: 70%; 
+  width: 3px;
+  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(200,200,255,0.3)); 
+  box-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(200,200,255,0.5); 
+  animation: lightning-flash-primary 3s ease-in-out infinite; 
+}
+
+/* Secondary lightning - right side */
+.lightning--secondary {
+  top: 25%; 
+  left: 65%; 
+  height: 50%; 
+  width: 2px;
+  animation: lightning-flash-secondary 5s ease-in-out infinite 1.2s; 
+}
+
+/* Tertiary lightning - left side, thinner */
+.lightning--tertiary {
+  top: 30%; 
+  left: 15%; 
+  height: 45%; 
+  width: 1.5px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.05)); 
+  box-shadow: 0 0 15px rgba(255,255,255,0.6); 
+  animation: lightning-flash-tertiary 6s ease-in-out infinite 2.5s; 
+}
+
+/* Quick lightning - short bursts */
+.lightning--quick {
+  top: 20%; 
+  left: 45%; 
+  height: 35%; 
+  width: 2px;
+  animation: lightning-flash-quick 2s ease-in-out infinite 0.8s; 
+}
+
+/* Distant lightning - dimmer, wider spread */
+.lightning--distant {
+  top: 10%; 
+  left: 80%; 
+  height: 40%; 
+  width: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.02)); 
+  box-shadow: 0 0 40px rgba(255,255,255,0.3); 
+  animation: lightning-flash-distant 7s ease-in-out infinite 3.8s; 
+}
+
+/* Lightning animation keyframes */
+@keyframes lightning-flash-primary { 
+  0%, 85%, 100% { opacity: 0; } 
+  3%, 8% { opacity: 1; } 
+  5% { opacity: 0.7; }
+  6% { opacity: 1; }
+}
+
+@keyframes lightning-flash-secondary { 
+  0%, 88%, 100% { opacity: 0; } 
+  4%, 9% { opacity: 1; } 
+  6% { opacity: 0.5; }
+}
+
+@keyframes lightning-flash-tertiary { 
+  0%, 92%, 100% { opacity: 0; } 
+  2%, 5% { opacity: 0.8; } 
+}
+
+@keyframes lightning-flash-quick { 
   0%, 90%, 100% { opacity: 0; } 
-  5%, 10% { opacity: 1; } 
+  2%, 4% { opacity: 1; } 
+  15%, 17% { opacity: 0.9; }
+  30%, 32% { opacity: 0.7; }
+}
+
+@keyframes lightning-flash-distant { 
+  0%, 95%, 100% { opacity: 0; } 
+  1%, 3% { opacity: 0.4; } 
 }
 
 /* Ambient shimmer and particles */

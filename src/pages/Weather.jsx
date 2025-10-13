@@ -182,7 +182,12 @@ function renderWeatherAnimation(variant) {
   if (variant === "storm") {
     return (
       <div className="storm-layer">
-        <div className="lightning" />
+        {/* Multiple lightning bolts with different positions and timings */}
+        <div className="lightning lightning--primary" />
+        <div className="lightning lightning--secondary" />
+        <div className="lightning lightning--tertiary" />
+        <div className="lightning lightning--quick" />
+        <div className="lightning lightning--distant" />
         {Array.from({ length: 8 }).map((_, i) => (
           <i
             key={i}
