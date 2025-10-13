@@ -17,18 +17,28 @@
  *  - [ ] Track path trail (polyline) on map over session
  *  - [ ] Extract map component & custom hook (useIssPosition)
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import IssMap from '../components/IssMap.jsx';
 
 export default function Space() {
   const [iss, setIss] = useState(null);
   const [crew, setCrew] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const intervalRef = useRef(null);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+    // Poll every 5s for updated ISS position only
+    intervalRef.current = setInterval(() => {
+      refreshIssOnly();
+    }, 5000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
 
   async function fetchData() {
     try {
@@ -42,7 +52,21 @@ export default function Space() {
       const crewJson = await crewRes.json();
       setIss(issJson);
       setCrew(crewJson.people || []);
+      setLastUpdated(new Date());
     } catch (e) { setError(e); } finally { setLoading(false); }
+  }
+
+  async function refreshIssOnly() {
+    try {
+      const res = await fetch('http://api.open-notify.org/iss-now.json');
+      if (!res.ok) throw new Error('Failed to refresh ISS');
+      const issJson = await res.json();
+      setIss(issJson);
+      setLastUpdated(new Date());
+    } catch (e) {
+      // don't clobber existing data, but surface error
+      setError(e);
+    }
   }
 
   return (
@@ -54,7 +78,8 @@ export default function Space() {
         <Card title="ISS Current Location">
           <p>Latitude: {iss.iss_position.latitude}</p>
           <p>Longitude: {iss.iss_position.longitude}</p>
-          {/* TODO: Render map (Leaflet) with marker for ISS position */}
+          {lastUpdated && <p style={{ fontSize: '0.8rem', color: '#666' }}>Last updated: {lastUpdated.toLocaleTimeString()}</p>}
+          <IssMap latitude={iss.iss_position.latitude} longitude={iss.iss_position.longitude} />
         </Card>
       )}
       <Card title={`Astronauts in Space (${crew.length})`}>
