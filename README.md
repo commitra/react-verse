@@ -61,6 +61,7 @@ Community-driven project for educational purposes. External API data © respecti
 ## Credits
 
 Hrishikesh Dalal (https://www.hrishikeshdalal.tech/)
+
 Venisha Kalola (https://www.venishakalola.tech/)
 
 
