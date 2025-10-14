@@ -411,39 +411,41 @@ export default function Weather() {
               Switch to °{unit === "C" ? "F" : "C"}
             </button>
           </div>
-      {loading && <Loading />}
-      {error && (
-        <ErrorMessage
-          message={error.message}
-          onRetry={() => fetchWeather(city)}
-        />
-      )}
+        </div>
 
-      {data && !loading && (
-        <div className="dashboard-grid">
-          {/* Current Weather */}
-          <Card title="Current Weather" size="large">
-            <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
-            <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              {current && getIconUrl(current.weatherIconUrl) && (
-                <img
-                  src={getIconUrl(current.weatherIconUrl)}
-                  alt={current.weatherDesc?.[0]?.value || "weather icon"}
-                  style={{ width: 48, height: 48, objectFit: "contain" }}
-                />
-              )}
-              <span>
-                <strong>Temperature:</strong>{" "}
-                {displayTemp(Number(current.temp_C))}°{unit}
-              </span>
-            </p>
-            <p>
-              <strong>Humidity:</strong> {current.humidity}%
-            </p>
-            <p>
-              <strong>Desc:</strong> {current.weatherDesc?.[0]?.value}
-            </p>
-          </Card>
+        {loading && <Loading />}
+        {error && (
+          <ErrorMessage
+            message={error.message}
+            onRetry={() => fetchWeather(city)}
+          />
+        )}
+
+        {data && !loading && (
+          <div className="dashboard-grid">
+            {/* Current Weather */}
+            <Card title="Current Weather" size="large">
+              <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
+              <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {current && getIconUrl(current.weatherIconUrl) && (
+                  <img
+                    src={getIconUrl(current.weatherIconUrl)}
+                    alt={current.weatherDesc?.[0]?.value || "weather icon"}
+                    style={{ width: 48, height: 48, objectFit: "contain" }}
+                  />
+                )}
+                <span>
+                  <strong>Temperature:</strong>{" "}
+                  {displayTemp(Number(current.temp_C))}°{unit}
+                </span>
+              </p>
+              <p>
+                <strong>Humidity:</strong> {current.humidity}%
+              </p>
+              <p>
+                <strong>Desc:</strong> {current.weatherDesc?.[0]?.value}
+              </p>
+            </Card>
 
           {/* 3-Day Forecast */}
           {forecast.map((day, i) => {
@@ -570,73 +572,6 @@ export default function Weather() {
             );
           })}
         </div>
-
-        {loading && <Loading />}
-        {error && (
-          <ErrorMessage
-            message={error.message}
-            onRetry={() => fetchWeather(city)}
-          />
-        )}
-
-        {data && !loading && (
-          <div 
-            className="dashboard-grid"
-            style={{ position: "relative", zIndex: 10 }}
-          >
-            {/* Current Weather */}
-            <Card title="Current Weather" size="large">
-              <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
-              <p>
-                <strong>Temperature:</strong>{" "}
-                {displayTemp(Number(current.temp_C))}°{unit}
-              </p>
-              <p>
-                <strong>Humidity:</strong> {current.humidity}%
-              </p>
-              <p>
-                <strong>Desc:</strong> {current.weatherDesc?.[0]?.value}
-              </p>
-            </Card>
-
-            {/* 3-Day Forecast */}
-            {forecast.map((day, i) => {
-              const condition =
-                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
-              const badge = getBadgeStyle(condition);
-
-              return (
-                <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {/* Badge Section */}
-                  <div
-                    style={{
-                      backgroundColor: badge.color,
-                      borderRadius: "8px",
-                      padding: "4px 8px",
-                      display: "inline-block",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      marginBottom: "8px",
-                      color: "#333",
-                    }}
-                  >
-                    {badge.label}
-                  </div>
-
-                  <p>
-                    <strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}
-                    °{unit}
-                  </p>
-                  <p>
-                    <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
-                  </p>
-                  <p>
-                    <strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}
-                  </p>
-                </Card>
-              );
-            })}
-          </div>
         )}
       </div>
     </div>
