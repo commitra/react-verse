@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
-
+import formatNumber from '../utilities/numberFormatter.js';
 export default function Crypto() {
   const [coins, setCoins] = useState([]);
   const [query, setQuery] = useState('');
@@ -52,7 +52,7 @@ export default function Crypto() {
       <div className="grid">
         {filtered.map(c => (
           <Card key={c.id} title={c.name} footer={<span>${c.current_price}</span>}>
-            <p>Market Cap: ${c.market_cap.toLocaleString()}</p>
+            <p>Market Cap: ${formatNumber(c.market_cap)}</p>
             <p>24h: {c.price_change_percentage_24h?.toFixed(2)}%</p>
             {/* TODO: Add mini sparkline chart */}
           </Card>

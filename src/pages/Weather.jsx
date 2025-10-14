@@ -71,35 +71,83 @@ function renderWeatherAnimation(variant) {
     return (
       <>
         {/* Inline SVG cloud instances for predictable lobe placement */}
-        <svg className="cloud-svg cloud--left" viewBox="0 0 220 80" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <svg
+          className="cloud-svg cloud--left"
+          viewBox="0 0 220 80"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden
+        >
           <g filter="url(#cloudBlur)">
-            <path className="cloud-shape" d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z" />
+            <path
+              className="cloud-shape"
+              d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z"
+            />
           </g>
           <defs>
             <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="2"
+                result="blur"
+              />
             </filter>
           </defs>
         </svg>
 
-        <svg className="cloud-svg cloud--mid" viewBox="0 0 260 90" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <svg
+          className="cloud-svg cloud--mid"
+          viewBox="0 0 260 90"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden
+        >
           <g filter="url(#cloudBlurMid)">
-            <path className="cloud-shape" d="M30 60 C30 38 60 24 90 30 C100 18 126 12 150 28 C175 14 210 18 228 36 C248 40 250 56 230 68 L40 74 C32 74 30 68 30 60 Z" />
+            <path
+              className="cloud-shape"
+              d="M30 60 C30 38 60 24 90 30 C100 18 126 12 150 28 C175 14 210 18 228 36 C248 40 250 56 230 68 L40 74 C32 74 30 68 30 60 Z"
+            />
           </g>
           <defs>
-            <filter id="cloudBlurMid" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2.6" result="blur" />
+            <filter
+              id="cloudBlurMid"
+              x="-20%"
+              y="-20%"
+              width="140%"
+              height="140%"
+            >
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="2.6"
+                result="blur"
+              />
             </filter>
           </defs>
         </svg>
 
-        <svg className="cloud-svg cloud--right" viewBox="0 0 200 70" preserveAspectRatio="xMidYMid meet" aria-hidden>
+        <svg
+          className="cloud-svg cloud--right"
+          viewBox="0 0 200 70"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden
+        >
           <g filter="url(#cloudBlurSmall)">
-            <path className="cloud-shape" d="M18 42 C18 30 38 22 60 24 C68 14 92 10 112 20 C136 10 160 14 168 28 C186 30 190 42 172 52 L34 54 C28 54 20 48 18 42 Z" />
+            <path
+              className="cloud-shape"
+              d="M18 42 C18 30 38 22 60 24 C68 14 92 10 112 20 C136 10 160 14 168 28 C186 30 190 42 172 52 L34 54 C28 54 20 48 18 42 Z"
+            />
           </g>
           <defs>
-            <filter id="cloudBlurSmall" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur" />
+            <filter
+              id="cloudBlurSmall"
+              x="-20%"
+              y="-20%"
+              width="140%"
+              height="140%"
+            >
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="1.8"
+                result="blur"
+              />
             </filter>
           </defs>
         </svg>
@@ -139,8 +187,8 @@ function renderWeatherAnimation(variant) {
                 left: `${(i / 12) * 100}%`,
                 animationDelay: `${(i % 6) * 0.4}s`,
                 // duration and horizontal drift vary per-flake
-                '--dur': `${10 + (i % 6)}s`,
-                '--drift': `${(i % 2 === 0 ? -40 : 40)}px`,
+                "--dur": `${10 + (i % 6)}s`,
+                "--drift": `${i % 2 === 0 ? -40 : 40}px`,
                 width: `${8 + (i % 3) * 4}px`,
                 height: `${8 + (i % 3) * 4}px`,
                 opacity: 0.9,
@@ -157,8 +205,8 @@ function renderWeatherAnimation(variant) {
               style={{
                 left: `${(i / 16) * 100}%`,
                 animationDelay: `${(i % 5) * 0.15}s`,
-                '--dur': `${6 + (i % 5)}s`,
-                '--drift': `${(i % 3 === 0 ? -24 : 24)}px`,
+                "--dur": `${6 + (i % 5)}s`,
+                "--drift": `${i % 3 === 0 ? -24 : 24}px`,
                 width: `${6 + (i % 2) * 3}px`,
                 height: `${6 + (i % 2) * 3}px`,
                 opacity: 0.98,
@@ -202,7 +250,7 @@ function renderWeatherAnimation(variant) {
     );
   }
 
-    // Default: subtle particle shimmer
+  // Default: subtle particle shimmer
   return (
     <>
       <div className="ambient-shimmer" />
@@ -275,7 +323,7 @@ export default function Weather() {
 
   const current = data?.current_condition?.[0];
   const forecast = data?.weather?.slice(0, 3) || [];
-    const desc = current?.weatherDesc?.[0]?.value || "";
+  const desc = current?.weatherDesc?.[0]?.value || "";
   const weatherBg = weatherToClass(desc);
   const weatherVariant = weatherBg.replace("weather-bg-", "");
 
@@ -366,6 +414,7 @@ export default function Weather() {
         transition: "background 1s ease-in-out",
       }}
     >
+      {/* Background Animation Layer */}
       <div
         style={{
           position: "fixed",
@@ -379,10 +428,11 @@ export default function Weather() {
       </div>
 
       <div className="weather-inner">
+        {/* Header */}
         <div
-            className="dashboard-header"
-            style={{ position: "relative", zIndex: 10 }}
-          >
+          className="dashboard-header"
+          style={{ position: "relative", zIndex: 10 }}
+        >
           <h1>🌤️ Weather Dashboard</h1>
           <form onSubmit={handleSubmit} className="weather-form">
             <input
@@ -411,167 +461,12 @@ export default function Weather() {
               Switch to °{unit === "C" ? "F" : "C"}
             </button>
           </div>
-      {loading && <Loading />}
-      {error && (
-        <ErrorMessage
-          message={error.message}
-          onRetry={() => fetchWeather(city)}
-        />
-      )}
-
-      {data && !loading && (
-        <div className="dashboard-grid">
-          {/* Current Weather */}
-          <Card title="Current Weather" size="large">
-            <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
-            <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              {current && getIconUrl(current.weatherIconUrl) && (
-                <img
-                  src={getIconUrl(current.weatherIconUrl)}
-                  alt={current.weatherDesc?.[0]?.value || "weather icon"}
-                  style={{ width: 48, height: 48, objectFit: "contain" }}
-                />
-              )}
-              <span>
-                <strong>Temperature:</strong>{" "}
-                {displayTemp(Number(current.temp_C))}°{unit}
-              </span>
-            </p>
-            <p>
-              <strong>Humidity:</strong> {current.humidity}%
-            </p>
-            <p>
-              <strong>Desc:</strong> {current.weatherDesc?.[0]?.value}
-            </p>
-          </Card>
-
-          {/* 3-Day Forecast */}
-          {forecast.map((day, i) => {
-            const condition =
-              day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
-            const badge = getBadgeStyle(condition);
-
-            return (
-              <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                {/* Badge Section */}
-                {/* Forecast icon (use first hourly entry icon) */}
-                {day.hourly?.[0] &&
-                  getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
-                    <div style={{ marginTop: 8 }}>
-                      <img
-                        src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
-                        alt={
-                          day.hourly?.[0]?.weatherDesc?.[0]?.value ||
-                          "forecast icon"
-                        }
-                        style={{ width: 40, height: 40, objectFit: "contain" }}
-                        onError={(e) =>
-                          (e.currentTarget.style.display = "none")
-                        }
-                      />
-                    </div>
-                  )}
-
-                {/* Full-day hourly timeline (0:00 - 23:00) */}
-                {day.hourly && (
-                  <div
-                    style={{
-                      display: "block",
-                      marginTop: 8,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 12,
-                        overflowX: "auto",
-                        padding: "8px 4px",
-                        WebkitOverflowScrolling: "touch",
-                      }}
-                    >
-                      {day.hourly.map((h, idx) => {
-                        const icon = getIconUrl(h.weatherIconUrl);
-                        const t = h.time ?? h.Time ?? "";
-                        const temp =
-                          h.tempC ?? h.temp_C ?? h.tempC ?? h.tempF ?? "";
-
-                        return (
-                          <div
-                            key={idx}
-                            style={{
-                              minWidth: 72,
-                              padding: 6,
-                              borderRadius: 6,
-                              background: "rgba(0,0,0,0.03)",
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: 12,
-                            }}
-                          >
-                            {icon ? (
-                              <img
-                                src={icon}
-                                alt={h.weatherDesc?.[0]?.value || "hour icon"}
-                                style={{
-                                  width: 36,
-                                  height: 36,
-                                  objectFit: "contain",
-                                }}
-                                loading="lazy"
-                                onError={(e) =>
-                                  (e.currentTarget.style.display = "none")
-                                }
-                              />
-                            ) : (
-                              <div style={{ fontSize: 18 }}>🌤️</div>
-                            )}
-                            <div style={{ marginTop: 6 }}>
-                              {formatWttTime(t)}
-                            </div>
-                            <div style={{ fontWeight: 700 }}>
-                              {displayTemp(Number(temp))}°{unit}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div style={
-                  {display:"flex",gap:"8px", marginTop:"17px"}
-                }>
-                  <strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}
-                  °{unit}
-                  <div
-                  style={{
-                    backgroundColor: badge.color,
-                    borderRadius: "8px",
-                    padding: "4px 8px",
-                    display: "inline-block",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    marginBottom: "8px",
-                    color: "#333",
-                  }}
-                >
-                  {badge.label}
-                </div>
-                </div>
-                <p>
-                  <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
-                </p>
-                <p>
-                  <strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}
-                </p>
-              </Card>
-            );
-          })}
         </div>
 
+        {/* Loading State */}
         {loading && <Loading />}
+
+        {/* Error State */}
         {error && (
           <ErrorMessage
             message={error.message}
@@ -579,17 +474,27 @@ export default function Weather() {
           />
         )}
 
+        {/* Content Grid */}
         {data && !loading && (
-          <div 
+          <div
             className="dashboard-grid"
             style={{ position: "relative", zIndex: 10 }}
           >
-            {/* Current Weather */}
+            {/* Current Weather Card */}
             <Card title="Current Weather" size="large">
               <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
-              <p>
-                <strong>Temperature:</strong>{" "}
-                {displayTemp(Number(current.temp_C))}°{unit}
+              <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {current && getIconUrl(current.weatherIconUrl) && (
+                  <img
+                    src={getIconUrl(current.weatherIconUrl)}
+                    alt={current.weatherDesc?.[0]?.value || "weather icon"}
+                    style={{ width: 48, height: 48, objectFit: "contain" }}
+                  />
+                )}
+                <span>
+                  <strong>Temperature:</strong>{" "}
+                  {displayTemp(Number(current.temp_C))}°{unit}
+                </span>
               </p>
               <p>
                 <strong>Humidity:</strong> {current.humidity}%
@@ -599,7 +504,7 @@ export default function Weather() {
               </p>
             </Card>
 
-            {/* 3-Day Forecast */}
+            {/* 3-Day Forecast Cards */}
             {forecast.map((day, i) => {
               const condition =
                 day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
@@ -607,7 +512,7 @@ export default function Weather() {
 
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {/* Badge Section */}
+                  {/* Weather Badge */}
                   <div
                     style={{
                       backgroundColor: badge.color,
@@ -623,10 +528,97 @@ export default function Weather() {
                     {badge.label}
                   </div>
 
-                  <p>
-                    <strong>Avg Temp:</strong> {displayTemp(Number(day.avgtempC))}
-                    °{unit}
-                  </p>
+                  {/* Forecast Icon */}
+                  {day.hourly?.[0] &&
+                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                      <div style={{ marginTop: 8 }}>
+                        <img
+                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                          alt={
+                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
+                            "forecast icon"
+                          }
+                          style={{
+                            width: 40,
+                            height: 40,
+                            objectFit: "contain",
+                          }}
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
+                        />
+                      </div>
+                    )}
+
+                  {/* Hourly Timeline */}
+                  {day.hourly && (
+                    <div style={{ display: "block", marginTop: 8 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          overflowX: "auto",
+                          padding: "8px 4px",
+                          WebkitOverflowScrolling: "touch",
+                        }}
+                      >
+                        {day.hourly.map((h, idx) => {
+                          const icon = getIconUrl(h.weatherIconUrl);
+                          const t = h.time ?? h.Time ?? "";
+                          const temp = h.tempC ?? h.temp_C ?? h.tempF ?? "";
+
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                minWidth: 72,
+                                padding: 6,
+                                borderRadius: 6,
+                                background: "rgba(0,0,0,0.03)",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 12,
+                              }}
+                            >
+                              {icon ? (
+                                <img
+                                  src={icon}
+                                  alt={h.weatherDesc?.[0]?.value || "hour icon"}
+                                  style={{
+                                    width: 36,
+                                    height: 36,
+                                    objectFit: "contain",
+                                  }}
+                                  loading="lazy"
+                                  onError={(e) =>
+                                    (e.currentTarget.style.display = "none")
+                                  }
+                                />
+                              ) : (
+                                <div style={{ fontSize: 18 }}>🌤️</div>
+                              )}
+                              <div style={{ marginTop: 6 }}>
+                                {formatWttTime(t)}
+                              </div>
+                              <div style={{ fontWeight: 700 }}>
+                                {displayTemp(Number(temp))}°{unit}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Day Summary */}
+                  <div
+                    style={{ display: "flex", gap: "8px", marginTop: "17px" }}
+                  >
+                    <strong>Avg Temp:</strong>{" "}
+                    {displayTemp(Number(day.avgtempC))}°{unit}
+                  </div>
                   <p>
                     <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
                   </p>
