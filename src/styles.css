@@ -222,16 +222,13 @@ blockquote {
 .skeleton {
   display: inline-block;
   opacity: 0.7;
-  background-color: rgb(237, 235, 235);
+  background-color: rgb(220, 220, 220);
   animation: skeleton-loading 1s linear infinite alternate;
   border-radius: 5px;
-  width: min-content;
-  padding: 2px;
-  padding-inline: 5px;
-  width: 40px;
-  height: 14px;
+  width: 50px;
+  height: 16px;
   vertical-align: middle;
-margin-left: 5px;
+  margin-left: 5px;
 
 }
 
@@ -240,6 +237,6 @@ margin-left: 5px;
     background-color: hsl(200, 20%, 70%);
   }
   100% {
-    background-color: hsl(200, 20, 95%);
+    background-color: hsl(180, 2%, 88%);
   }
 }

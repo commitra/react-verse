@@ -98,17 +98,17 @@ export default function Weather() {
       <Card title={`Current in ${city}`} aria-label={`Current weather in ${city}`}>
         <div aria-label={loading ? "Temperature loading" : `Temperature: ${displayTemp(Number(current?.temp_C))}°${unit}`}>
           Temperature:{" "}
-          {loading || !current?.temp_C ? <Skeleton height="12px" aria-label="Temperature loading" /> : `${displayTemp(Number(current.temp_C))}°${unit}`}
+          {loading || !current?.temp_C ? <Skeleton height="14px" width="38px" aria-label="Temperature loading" /> : `${displayTemp(Number(current.temp_C))}°${unit}`}
         </div>
 
         <div aria-label={loading ? "Humidity loading" : `Humidity: ${current?.humidity}%`}>
           Humidity:{" "}
-          {loading || !current?.humidity ? <Skeleton height="12px" aria-label="Humidity loading" /> : `${current.humidity}%`}
+          {loading || !current?.humidity ? <Skeleton height="14px" width="35px" aria-label="Humidity loading" /> : `${current.humidity}%`}
         </div>
 
         <div aria-label={loading ? "Weather description loading" : `Description: ${current?.weatherDesc?.[0]?.value}`}>
           Desc:{" "}
-          {loading || !current?.weatherDesc?.[0]?.value ? <Skeleton width="60px" height="12px" aria-label="Description loading" /> : current.weatherDesc[0].value}
+          {loading || !current?.weatherDesc?.[0]?.value ? <Skeleton  height="14px" width="80px" aria-label="Description loading" /> : current.weatherDesc[0].value}
         </div>
       </Card>
 
@@ -118,14 +118,14 @@ export default function Weather() {
           return (
             <Card
               key={loading ? `skeleton-${index}` : day.date}
-              title={loading ? <Skeleton width="120px" aria-label="Forecast date loading" /> : day.date}
+              title={loading ? <Skeleton width="100px" aria-label="Forecast date loading" /> : day.date}
               aria-label={loading ? "Forecast data loading" : `Forecast for ${day.date}`}
             >
               <div
                 style={{ marginBottom: "1rem" }}
                 aria-label={isSkeleton ? "Average temperature loading" : `Avg Temp: ${displayTemp(Number(day.avgtempC))}°${unit}`}
               >
-                Avg Temp: {isSkeleton ? <Skeleton aria-label="Avg Temp loading" /> : `${displayTemp(Number(day.avgtempC))}°${unit}`}
+                Avg Temp: {isSkeleton ? <Skeleton width="40px" aria-label="Avg Temp loading" /> : `${displayTemp(Number(day.avgtempC))}°${unit}`}
               </div>
 
               <div
