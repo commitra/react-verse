@@ -412,3 +412,35 @@ blockquote {
 @media (max-width: 640px) {
   .weather-inner { padding: 1rem; }
 }
+
+
+/**Pagination **/
+
+.pagination {
+  width: 100%;
+  display: flex;
+  justify-content: center;  
+  align-items: center;     
+  margin-top: 20px;         
+  gap: 15px;           
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination button:hover {
+  background-color: #0056b3;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
