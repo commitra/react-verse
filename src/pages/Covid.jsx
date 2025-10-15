@@ -17,7 +17,7 @@
  *  - [ ] Offline cache last fetch
  *  - [ ] Extract service + hook (useCovidSummary, useCountryTrends)
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
@@ -28,17 +28,25 @@ export default function Covid() {
   const [error, setError] = useState(null);
   const [country, setCountry] = useState('');
 
-  useEffect(() => { fetchSummary(); }, []);
-
-  async function fetchSummary() {
+  const fetchSummary = useCallback(async () => {
+    if (loading) return;
     try {
-      setLoading(true); setError(null);
+      setLoading(true); 
+      setError(null);
       const res = await fetch('https://api.covid19api.com/summary');
       if (!res.ok) throw new Error('Failed to fetch');
       const json = await res.json();
       setSummary(json);
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+    } catch (e) { 
+      setError(e); 
+    } finally { 
+      setLoading(false); 
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, []);
 
   const global = summary?.Global;
   const countries = summary?.Countries || [];
@@ -46,8 +54,13 @@ export default function Covid() {
 
   return (
     <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
       <h2>COVID-19 Tracker</h2>
-      {loading && <Loading />}
+      <button onClick={fetchSummary} disabled={loading}>
+    {loading ? 'Refreshing...' : 'Refresh'}
+      </button>
+    </div>
+      {loading && !summary && <Loading />}
       <ErrorMessage error={error} />
       {global && (
         <Card title="Global Stats">
