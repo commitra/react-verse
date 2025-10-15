@@ -3,7 +3,7 @@
 **ReactVerse** is an open-source API dashboard built with **React + Vite**, designed to help developers explore, visualize, and learn how to integrate public APIs safely and responsibly.
 It’s more than just a project — it’s a **community-driven learning space** for understanding how APIs work, managing data securely, and contributing meaningfully to open source.
 
-Perfect for **Hacktoberfest**, **beginners**, and **API enthusiasts** who want to get hands-on experience using real-world APIs.
+Perfect for **beginners**, and **API enthusiasts** who want to get hands-on experience using real-world APIs.
 
 ---
 
@@ -76,22 +76,6 @@ We welcome contributions of all levels — from design tweaks to feature enhance
 
 ---
 
-## 📚 API Reference
-
-| Category | API               | Documentation                                                                                         |
-| -------- | ----------------- | ----------------------------------------------------------------------------------------------------- |
-| Weather  | wttr.in           | [https://wttr.in/:help](https://wttr.in/:help)                                                        |
-| Crypto   | CoinGecko         | [https://www.coingecko.com/en/api](https://www.coingecko.com/en/api)                                  |
-| Space    | Open Notify       | [http://open-notify.org/Open-Notify-API/](http://open-notify.org/Open-Notify-API/)                    |
-| Movies   | Studio Ghibli     | [https://ghibliapi.vercel.app/](https://ghibliapi.vercel.app/)                                        |
-| Recipes  | TheMealDB         | [https://www.themealdb.com/api.php](https://www.themealdb.com/api.php)                                |
-| Trivia   | Open Trivia DB    | [https://opentdb.com/api_config.php](https://opentdb.com/api_config.php)                              |
-| Jokes    | Official Joke API | [https://official-joke-api.appspot.com/](https://official-joke-api.appspot.com/)                      |
-| Quotes   | Quotable          | [https://github.com/lukePeavey/quotable](https://github.com/lukePeavey/quotable)                      |
-| Pets     | Dog CEO / Cataas  | [https://dog.ceo/dog-api/](https://dog.ceo/dog-api/) / [https://cataas.com/#/](https://cataas.com/#/) |
-| COVID-19 | COVID19 API       | [https://covid19api.com/](https://covid19api.com/)                                                    |
-
----
 
 ## 🪪 License
 

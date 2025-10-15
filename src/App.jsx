@@ -65,7 +65,7 @@ export default function App() {
             <Route path="/trivia" element={<Trivia />} />
             <Route path="/jokes-quotes" element={<JokesQuotes />} />
             <Route path="/pets" element={<Pets />} />
-            <Route path="/covid" element={<Covid />} />
+            <Route path="/covid" element={<Covid />} />        
         </Routes>
       </main>
     </div>
