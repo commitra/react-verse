@@ -81,10 +81,14 @@ function renderWeatherAnimation(variant) {
     return (
       <div className="rain-layer">
         {Array.from({ length: 12 }).map((_, i) => (
-          <i key={i} className="raindrop" style={{
-            left: `${(i / 12) * 100}%`,
-            animationDelay: `${(i % 5) * 0.15}s`,
-          }} />
+          <i
+            key={i}
+            className="raindrop"
+            style={{
+              left: `${(i / 12) * 100}%`,
+              animationDelay: `${(i % 5) * 0.15}s`,
+            }}
+          />
         ))}
       </div>
     );
@@ -92,20 +96,22 @@ function renderWeatherAnimation(variant) {
 
   if (variant === "snow") {
     return (
-      <>
-        <div className="snow-layer snow-layer--back">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <i key={`back-${i}`} className="snowflake" style={{
+      <div className="snow-layer snow-layer--back">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <i
+            key={`back-${i}`}
+            className="snowflake"
+            style={{
               left: `${(i / 12) * 100}%`,
               animationDelay: `${(i % 6) * 0.4}s`,
-              '--dur': `${10 + (i % 6)}s`,
-              '--drift': `${(i % 2 === 0 ? -40 : 40)}px`,
+              "--dur": `${10 + (i % 6)}s`,
+              "--drift": `${(i % 2 === 0 ? -40 : 40)}px`,
               width: `${8 + (i % 3) * 4}px`,
               height: `${8 + (i % 3) * 4}px`,
-            }} />
-          ))}
-        </div>
-      </>
+            }}
+          />
+        ))}
+      </div>
     );
   }
 
@@ -234,59 +240,109 @@ export default function Weather() {
         </form>
 
         <div className="dev-tools">
-          <button onClick={handleClearCache}>Clear Cache</button>
-          <button onClick={handleShowCacheStats}>Cache Stats</button>
-          <button onClick={() => setUnit(unit === "C" ? "F" : "C")}>
+          <button onClick={handleClearCache} className="dev-btn">
+            Clear Cache
+          </button>
+          <button onClick={handleShowCacheStats} className="dev-btn">
+            Cache Stats
+          </button>
+          <button
+            onClick={() => setUnit(unit === "C" ? "F" : "C")}
+            className="dev-btn"
+          >
             Switch to °{unit === "C" ? "F" : "C"}
           </button>
         </div>
 
         {loading && <Loading />}
-        {error && <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />}
+        {error && (
+          <ErrorMessage
+            message={error.message}
+            onRetry={() => fetchWeather(city)}
+          />
+        )}
 
         {data && !loading && (
           <div className="dashboard-grid">
-            <Card title={`Current in ${city}`}>
-              {current && (
-                <>
-                  {getIconUrl(current.weatherIconUrl) && (
-                    <img
-                      src={getIconUrl(current.weatherIconUrl)}
-                      alt="Weather icon"
-                      style={{ width: 48, height: 48 }}
-                    />
-                  )}
-                  <p>
-                    Temperature: {displayTemp(Number(current.temp_C))}°{unit}
-                  </p>
-                  <p>Feels Like: {displayTemp(Number(current.FeelsLikeC))}°{unit}</p>
-                  <p>Wind: {current.windspeedKmph} km/h</p>
-                  <p>Humidity: {current.humidity}%</p>
-                  <p>Desc: {current.weatherDesc?.[0]?.value}</p>
-                </>
-              )}
+            {/* Current Weather */}
+            <Card title="Current Weather" size="large">
+              <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
+              <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {current && getIconUrl(current.weatherIconUrl) && (
+                  <img
+                    src={getIconUrl(current.weatherIconUrl)}
+                    alt={current.weatherDesc?.[0]?.value || "weather icon"}
+                    style={{ width: 48, height: 48, objectFit: "contain" }}
+                  />
+                )}
+                <span>
+                  <strong>Temperature:</strong>{" "}
+                  {displayTemp(Number(current.temp_C))}°{unit}
+                </span>
+              </p>
+              <p>
+                <strong>Humidity:</strong> {current.humidity}%
+              </p>
+              <p>
+                <strong>Desc:</strong> {current.weatherDesc?.[0]?.value}
+              </p>
             </Card>
 
+            {/* 3-Day Forecast */}
             {forecast.map((day, i) => {
-              const badge = getBadgeStyle(day.hourly?.[0]?.weatherDesc?.[0]?.value);
+              const condition =
+                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+              const badge = getBadgeStyle(condition);
+
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
+                  {day.hourly?.[0] &&
+                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                      <div style={{ marginTop: 8 }}>
+                        <img
+                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                          alt={
+                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
+                            "forecast icon"
+                          }
+                          style={{ width: 40, height: 40, objectFit: "contain" }}
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
+                        />
+                      </div>
+                    )}
+
                   <div
                     style={{
-                      backgroundColor: badge.color,
-                      borderRadius: "8px",
-                      padding: "4px 8px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "#333",
-                      marginBottom: "8px",
+                      display: "flex",
+                      gap: "8px",
+                      marginTop: "17px",
                     }}
                   >
-                    {badge.label}
+                    <strong>Avg Temp:</strong>{" "}
+                    {displayTemp(Number(day.avgtempC))}°{unit}
+                    <div
+                      style={{
+                        backgroundColor: badge.color,
+                        borderRadius: "8px",
+                        padding: "4px 8px",
+                        display: "inline-block",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        marginBottom: "8px",
+                        color: "#333",
+                      }}
+                    >
+                      {badge.label}
+                    </div>
                   </div>
-                  <p>Avg Temp: {displayTemp(Number(day.avgtempC))}°{unit}</p>
-                  <p>Sunrise: {day.astronomy?.[0]?.sunrise}</p>
-                  <p>Sunset: {day.astronomy?.[0]?.sunset}</p>
+                  <p>
+                    <strong>Sunrise:</strong> {day.astronomy?.[0]?.sunrise}
+                  </p>
+                  <p>
+                    <strong>Sunset:</strong> {day.astronomy?.[0]?.sunset}
+                  </p>
                 </Card>
               );
             })}
@@ -295,13 +351,15 @@ export default function Weather() {
 
         {loading && (
           <div className="grid">
-            {Array(3).fill(null).map((_, i) => (
-              <Card key={i} title={<Skeleton width="80px" />}>
-                <Skeleton width="40px" />
-                <Skeleton width="60px" />
-                <Skeleton width="50px" />
-              </Card>
-            ))}
+            {Array(3)
+              .fill(null)
+              .map((_, i) => (
+                <Card key={i} title={<Skeleton width="80px" />}>
+                  <Skeleton width="40px" />
+                  <Skeleton width="60px" />
+                  <Skeleton width="50px" />
+                </Card>
+              ))}
           </div>
         )}
       </div>

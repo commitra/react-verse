@@ -59,7 +59,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/weather" element={<Weather />} />
             <Route path="/crypto" element={<Crypto />} />
-            <Route path="/space" element={<Space />} />
+            <Route path="/space" element={<Space theme={theme} />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/trivia" element={<Trivia />} />
