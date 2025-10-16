@@ -54,16 +54,51 @@ a:hover {
   z-index: 10;
 }
 .navbar .logo {
-  margin: 0;
-  font-size: 1.1rem;
+  margin: 0 5vw;
+  font-size: 1.85rem;
+  background: linear-gradient(90deg, #00d9ff, #1a5c66);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25);
 }
+
+.theme-dark .navbar .logo,
+[data-theme="dark"] .navbar .logo {
+  background: linear-gradient(90deg, #00d9ff, #b0e7ef);
+   -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+
 .navbar ul {
   list-style: none;
   display: flex;
-  gap: 0.75rem;
-  margin: 0;
+  gap: 0.95rem;
+  margin: 0 8vw;
   padding: 0;
 }
+
+.navbar a {
+  text-decoration: none;
+  color: #1a5c66;
+  font-weight: 700;
+   padding: 0.5rem;
+}
+
+.navbar a:hover{
+  background: rgba(0, 217, 255,0.1);
+}
+
+.theme-dark .navbar a,
+[data-theme="dark"] .navbar a {
+  color: #ffffff;
+}
+
 .navbar a.active {
   font-weight: 600;
 }
@@ -124,17 +159,47 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
+
+.home-page .card{
+    background: rgba(26, 92, 102,0.2);
+  border: 2px solid rgba(0, 217, 255,0.5);
+}
+
+.home-page .card:hover h3 {
+  transform: translateY(-7px);
+  color: rgb(0, 143, 165);
+}
+
 .card h3 {
   margin: 0 0 0.25rem;
   font-size: 1rem;
+  transition: transform 1.5s ease;
 }
 .card-footer {
   margin-top: auto;
   font-size: 0.85rem;
   opacity: 0.8;
 }
+
+.card-link-button {
+  display: inline-block;
+  background:linear-gradient(45deg, rgb(0, 166, 255),rgb(7, 94, 105)); 
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+}
+
+.card-link-button:hover {
+  background: #215b6a; 
+  text-decoration: none;
+}
+
 .chart-placeholder {
   background: repeating-linear-gradient(
     45deg,
@@ -148,6 +213,18 @@ a:hover {
   text-align: center;
   border-radius: var(--radius);
 }
+
+
+.home-page .card {
+  background: rgba(26, 92, 102, 0.2);
+  border: 2px solid rgba(0, 217, 255, 0.5);
+}
+
+.home-page .card:hover h3 {
+  transform: translateY(-7px);
+  color: rgb(0, 143, 165);
+}
+
 
 /* Buttons & inputs */
 button,
@@ -283,6 +360,7 @@ blockquote {
 .weather-bg-default {
   background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 50%, #4facfe 100%) !important;
 }
+
 
 /* Weather Animations: Sun, Clouds, Rain, Snow, Fog, Storm */
 .sun-wrap {

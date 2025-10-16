@@ -21,6 +21,7 @@
  */
 import Card from '../components/Card.jsx';
 import { Link } from 'react-router-dom';
+import Header from './Header.jsx';
 
 const dashboards = [
   { path: '/weather', title: 'Weather', desc: 'Current weather & forecast' },
@@ -36,12 +37,21 @@ const dashboards = [
 
 export default function Home() {
   return (
-    <div className="grid">
-      {dashboards.map(d => (
-        <Card key={d.path} title={d.title} footer={<Link to={d.path}>Open →</Link>}>
-          <p>{d.desc}</p>
-        </Card>
-      ))}
+    <>
+    <Header/>
+     <div className="home-page">
+      <div className="grid">
+        {dashboards.map(d => (
+          <Card
+            key={d.path}
+            title={d.title}
+            footer={<Link to={d.path} className="card-link-button">Open →</Link>}
+          >
+            <p>{d.desc}</p>
+          </Card>
+        ))}
+      </div>
     </div>
+    </>
   );
 }
