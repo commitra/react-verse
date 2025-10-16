@@ -15,7 +15,7 @@
  * - [x] Add error retry button component
  * - [ ] Add favorites list (pin cities)
  * Advanced:
- * - [ ] Hourly forecast visualization (line / area chart)
+ * - [x] Hourly forecast visualization (line / area chart)
  * - [x] Animate background transitions
  * - [ ] Add geolocation: auto-detect user city (with permission)
  */
@@ -30,6 +30,17 @@ import {
   clearWeatherCache,
   getCacheStats,
 } from "../services/weather.js";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  AreaChart,
+  Area,
+} from "recharts";
 
 // Helper to determine weather background class
 const weatherToClass = (desc = "") => {
@@ -65,7 +76,10 @@ function renderWeatherAnimation(variant) {
       <>
         <svg className="cloud-svg cloud--left" viewBox="0 0 220 80" aria-hidden>
           <g filter="url(#cloudBlur)">
-            <path className="cloud-shape" d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z" />
+            <path
+              className="cloud-shape"
+              d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z"
+            />
           </g>
           <defs>
             <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
@@ -105,7 +119,7 @@ function renderWeatherAnimation(variant) {
               left: `${(i / 12) * 100}%`,
               animationDelay: `${(i % 6) * 0.4}s`,
               "--dur": `${10 + (i % 6)}s`,
-              "--drift": `${(i % 2 === 0 ? -40 : 40)}px`,
+              "--drift": `${i % 2 === 0 ? -40 : 40}px`,
               width: `${8 + (i % 3) * 4}px`,
               height: `${8 + (i % 3) * 4}px`,
             }}
@@ -213,6 +227,15 @@ export default function Weather() {
     return { color: "#E0E0E0", label: "Clear 🌤️" };
   };
 
+  // Hourly forecast chart data
+  const hourlyData =
+    data?.weather?.[0]?.hourly?.map((h) => ({
+      time: h.time.length === 1 ? "00:00" : `${h.time.padStart(4, "0").slice(0, 2)}:00`,
+      temp: displayTemp(Number(h.tempC)),
+      feelsLike: displayTemp(Number(h.FeelsLikeC)),
+      humidity: Number(h.humidity),
+    })) || [];
+
   return (
     <div
       className="weather-page"
@@ -256,10 +279,7 @@ export default function Weather() {
 
         {loading && <Loading />}
         {error && (
-          <ErrorMessage
-            message={error.message}
-            onRetry={() => fetchWeather(city)}
-          />
+          <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />
         )}
 
         {data && !loading && (
@@ -276,8 +296,8 @@ export default function Weather() {
                   />
                 )}
                 <span>
-                  <strong>Temperature:</strong>{" "}
-                  {displayTemp(Number(current.temp_C))}°{unit}
+                  <strong>Temperature:</strong> {displayTemp(Number(current.temp_C))}°
+                  {unit}
                 </span>
               </p>
               <p>
@@ -290,36 +310,25 @@ export default function Weather() {
 
             {/* 3-Day Forecast */}
             {forecast.map((day, i) => {
-              const condition =
-                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+              const condition = day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
               const badge = getBadgeStyle(condition);
 
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {day.hourly?.[0] &&
-                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
-                      <div style={{ marginTop: 8 }}>
-                        <img
-                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
-                          alt={
-                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
-                            "forecast icon"
-                          }
-                          style={{ width: 40, height: 40, objectFit: "contain" }}
-                          onError={(e) =>
-                            (e.currentTarget.style.display = "none")
-                          }
-                        />
-                      </div>
-                    )}
+                  {day.hourly?.[0] && getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                    <div style={{ marginTop: 8 }}>
+                      <img
+                        src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                        alt={
+                          day.hourly?.[0]?.weatherDesc?.[0]?.value || "forecast icon"
+                        }
+                        style={{ width: 40, height: 40, objectFit: "contain" }}
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                      />
+                    </div>
+                  )}
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginTop: "17px",
-                    }}
-                  >
+                  <div style={{ display: "flex", gap: "8px", marginTop: "17px" }}>
                     <strong>Avg Temp:</strong>{" "}
                     {displayTemp(Number(day.avgtempC))}°{unit}
                     <div
@@ -346,6 +355,47 @@ export default function Weather() {
                 </Card>
               );
             })}
+
+            {/* Hourly Forecast Visualization */}
+            {hourlyData.length > 0 && (
+              <Card title="Hourly Forecast (Next 24h)">
+                <div style={{ width: "100%", height: 300 }}>
+                  <ResponsiveContainer>
+                    <AreaChart data={hourlyData}>
+                      <defs>
+                        <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="time" />
+                      <YAxis
+                        label={{
+                          value: `°${unit}`,
+                          angle: -90,
+                          position: "insideLeft",
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(255,255,255,0.9)",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <Area
+                        type="monotone"
+                        dataKey="temp"
+                        stroke="#8884d8"
+                        fillOpacity={1}
+                        fill="url(#tempGradient)"
+                      />
+                      <Line type="monotone" dataKey="feelsLike" stroke="#82ca9d" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            )}
           </div>
         )}
 
