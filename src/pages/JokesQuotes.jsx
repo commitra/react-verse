@@ -40,15 +40,18 @@ export default function JokesQuotes() {
       setJoke(await res.json());
     } catch (e) { setError(e); } finally { setLoading(false); }
   }
-
+  
   async function fetchQuote() {
-    try {
-      setLoading(true); setError(null);
-      const res = await fetch('https://api.quotable.io/random');
-      if (!res.ok) throw new Error('Failed to fetch');
-      setQuote(await res.json());
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+  try {
+    setLoading(true); setError(null);
+    const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://zenquotes.io/api/random'));
+    if (!res.ok) throw new Error('Failed to fetch');
+    const data = await res.json();
+    const quotes = JSON.parse(data.contents);
+    setQuote({content: quotes[0].q, author: quotes[0].a});
+  } catch (e) { setError(e); } finally { setLoading(false); }
+}
+
 
   async function searchQuotes() {
     if (!search) return;
