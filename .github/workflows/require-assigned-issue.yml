@@ -1,3 +1,4 @@
+# Here if the issue is not referenced in PR an alert pops up
 name: Require referenced assigned issue
 
 on:
