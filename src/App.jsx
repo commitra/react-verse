@@ -56,6 +56,7 @@ export default function App() {
       <ThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
       <main className="container">
         <Routes>
+          {/* Different Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/weather" element={<Weather />} />
             <Route path="/crypto" element={<Crypto />} />
