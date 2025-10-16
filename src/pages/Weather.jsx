@@ -14,6 +14,7 @@
  * - [x] Persist last searched city (localStorage)
  * - [x] Add error retry button component
  * - [ ] Add favorites list (pin cities)
+ * - [x] Optimize API usage by adding debounced search delay
  * Advanced:
  * - [ ] Hourly forecast visualization (line / area chart)
  * - [x] Animate background transitions
@@ -65,7 +66,10 @@ function renderWeatherAnimation(variant) {
       <>
         <svg className="cloud-svg cloud--left" viewBox="0 0 220 80" aria-hidden>
           <g filter="url(#cloudBlur)">
-            <path className="cloud-shape" d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z" />
+            <path
+              className="cloud-shape"
+              d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z"
+            />
           </g>
           <defs>
             <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
@@ -105,7 +109,7 @@ function renderWeatherAnimation(variant) {
               left: `${(i / 12) * 100}%`,
               animationDelay: `${(i % 6) * 0.4}s`,
               "--dur": `${10 + (i % 6)}s`,
-              "--drift": `${(i % 2 === 0 ? -40 : 40)}px`,
+              "--drift": `${i % 2 === 0 ? -40 : 40}px`,
               width: `${8 + (i % 3) * 4}px`,
               height: `${8 + (i % 3) * 4}px`,
             }}
@@ -145,9 +149,19 @@ export default function Weather() {
   const [activeBg, setActiveBg] = useState("default");
   const [prevBg, setPrevBg] = useState(null);
 
+  // Fetch data initially
   useEffect(() => {
     fetchWeather(city);
   }, []);
+
+  // ✅ Debounced search effect
+  useEffect(() => {
+    if (!city.trim()) return;
+    const handler = setTimeout(() => {
+      fetchWeather(city);
+    }, 800); // delay in ms
+    return () => clearTimeout(handler);
+  }, [city]);
 
   async function fetchWeather(c) {
     try {
@@ -256,10 +270,7 @@ export default function Weather() {
 
         {loading && <Loading />}
         {error && (
-          <ErrorMessage
-            message={error.message}
-            onRetry={() => fetchWeather(city)}
-          />
+          <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />
         )}
 
         {data && !loading && (
@@ -290,36 +301,23 @@ export default function Weather() {
 
             {/* 3-Day Forecast */}
             {forecast.map((day, i) => {
-              const condition =
-                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+              const condition = day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
               const badge = getBadgeStyle(condition);
 
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {day.hourly?.[0] &&
-                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
-                      <div style={{ marginTop: 8 }}>
-                        <img
-                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
-                          alt={
-                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
-                            "forecast icon"
-                          }
-                          style={{ width: 40, height: 40, objectFit: "contain" }}
-                          onError={(e) =>
-                            (e.currentTarget.style.display = "none")
-                          }
-                        />
-                      </div>
-                    )}
+                  {day.hourly?.[0] && getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                    <div style={{ marginTop: 8 }}>
+                      <img
+                        src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                        alt={day.hourly?.[0]?.weatherDesc?.[0]?.value || "forecast icon"}
+                        style={{ width: 40, height: 40, objectFit: "contain" }}
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                      />
+                    </div>
+                  )}
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginTop: "17px",
-                    }}
-                  >
+                  <div style={{ display: "flex", gap: "8px", marginTop: "17px" }}>
                     <strong>Avg Temp:</strong>{" "}
                     {displayTemp(Number(day.avgtempC))}°{unit}
                     <div
