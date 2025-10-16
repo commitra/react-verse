@@ -21,6 +21,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import CountryTrendChart from '../components/CountryTrendChart.jsx';
 
 export default function Covid() {
   const [summary, setSummary] = useState(null);
@@ -82,7 +83,7 @@ export default function Covid() {
           <p>Total Deaths: {selected.TotalDeaths.toLocaleString()}</p>
         </Card>
       )}
-      {/* TODO: Add daily trends chart using ChartPlaceholder */}
+      <CountryTrendChart slug={country} />
     </div>
   );
 }
