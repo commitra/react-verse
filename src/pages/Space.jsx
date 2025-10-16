@@ -34,31 +34,52 @@ export default function Space({ theme = 'light' }) {
 
   const isDark = theme === 'dark';
 
-  // Fetch both ISS position + crew
-  async function fetchData() {
-    try {
-      setLoading(true);
-      setError(null);
-      const [issRes, crewRes] = await Promise.all([
-        fetch('http://api.open-notify.org/iss-now.json'),
-        fetch('http://api.open-notify.org/astros.json')
-      ]);
-      if (!issRes.ok || !crewRes.ok) throw new Error('Failed to fetch');
-      const issJson = await issRes.json();
-      const crewJson = await crewRes.json();
-      setIss(issJson);
-      setCrew(crewJson.people || []);
-      setLastUpdated(new Date());
-    } catch (e) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
+// Fetch both ISS position + crew
+async function fetchData() {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // Add a small delay between requests to avoid rate limiting
+    const issRes = await fetch('/api/iss-now.json');
+    if (!issRes.ok) throw new Error('Failed to fetch ISS position');
+    const issJson = await issRes.json();
+    
+    // Wait 500ms before the second request
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const crewRes = await fetch('/api/astros.json');
+    if (!crewRes.ok) throw new Error('Failed to fetch crew data');
+    const crewJson = await crewRes.json();
+    
+    setIss(issJson);
+    setCrew(crewJson.people || []);
+    setLastUpdated(new Date());
+  } catch (e) {
+    setError(e);
+  } finally {
+    setLoading(false);
   }
+}
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+useEffect(() => {
+  let isMounted = true;
+  const controller = new AbortController();
+
+  const loadData = async () => {
+    if (isMounted) {
+      await fetchData();
+    }
+  };
+
+  loadData();
+
+  return () => {
+    isMounted = false;
+    controller.abort();
+  };
+}, []);
+
 
   // Proper dark/light theme colors
   const bgColor = isDark ? '#0f172a' : '#f8fafc';
