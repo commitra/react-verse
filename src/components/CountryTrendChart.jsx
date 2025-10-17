@@ -59,7 +59,7 @@ function SimpleLineChart({ data, width = 600, height = 250 }) {
          {yLabels.map((v, i) => (
             <text
                key={i}
-               x={padding + 2}
+               x={padding + 8}
                y={y(v) + 4}
                textAnchor="end"
                fontSize="10"
