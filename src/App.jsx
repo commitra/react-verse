@@ -41,19 +41,30 @@ import JokesQuotes from './pages/JokesQuotes.jsx';
 import Pets from './pages/Pets.jsx';
 import Covid from './pages/Covid.jsx';
 import Navbar from './components/Navbar.jsx';
-import ThemeSwitcher from './components/ThemeSwitcher.jsx';
 
 // TODO: Extract theme state into context (see todo 5).
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function App() {
-  const [theme, setTheme] = useState('light');
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+  
+  const toggleTheme = () => {
+    setTheme(t => {
+      const newTheme = t === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+      return newTheme;
+    });
+  };
+  
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <div className={`app theme-${theme}`}>      
-      <Navbar />
-      <ThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="container">
         <Routes>
           {/* Different Routes */}
