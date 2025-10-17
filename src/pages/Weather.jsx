@@ -2,12 +2,11 @@
  * WEATHER DASHBOARD TODOs
  * -----------------------
  * Easy:
- * - [x] Extract API call into /src/services/weather.js and add caching
- * - [x] Add °C / °F toggle
- * - [x] Show weather icon (current + forecast)
- * - [x] Show feels-like temperature & wind speed
- * - [x] Add loading skeleton instead of plain text
- * - [x] Style forecast cards with condition color badges
+ *  - [ ] Add °C / °F toggle
+ *  - [ ] Show weather icon (current + forecast)
+ *  - [ ] Show feels-like temperature & wind speed
+ *  - [ ] Add loading skeleton instead of plain text
+ *  - [ ] Style forecast cards with condition color badges
  * Medium:
  * - [x] Dynamic background / gradient based on condition (sunny, rain, snow)
  * - [x] Input debounced search (on stop typing)
@@ -16,9 +15,10 @@
  * - [ ] Add favorites list (pin cities)
  * - [x] Optimize API usage by adding debounced search delay
  * Advanced:
- * - [ ] Hourly forecast visualization (line / area chart)
- * - [x] Animate background transitions
- * - [ ] Add geolocation: auto-detect user city (with permission)
+ *  - [ ] Hourly forecast visualization (line / area chart)
+ *  - [ ] Animate background transitions
+ *  - [ ] Add geolocation: auto-detect user city (with permission)
+ *  - [ ] Extract API call into /src/services/weather.js and add caching
  */
 
 import { useEffect, useState } from "react";
@@ -32,127 +32,213 @@ import {
   getCacheStats,
 } from "../services/weather.js";
 
-// Helper to determine weather background class
-const weatherToClass = (desc = "") => {
-  if (!desc) return "weather-bg-default";
-  desc = desc.toLowerCase();
-  if (desc.includes("rain") || desc.includes("shower") || desc.includes("drizzle"))
-    return "weather-bg-rain";
-  if (desc.includes("snow") || desc.includes("blizzard"))
-    return "weather-bg-snow";
-  if (desc.includes("cloud") || desc.includes("overcast"))
-    return "weather-bg-cloud";
-  if (desc.includes("sun") || desc.includes("clear") || desc.includes("fair"))
-    return "weather-bg-sunny";
-  if (desc.includes("fog") || desc.includes("mist") || desc.includes("haze") || desc.includes("smoke"))
-    return "weather-bg-fog";
-  if (desc.includes("thunder") || desc.includes("storm"))
-    return "weather-bg-storm";
-  return "weather-bg-default";
-};
-
-// Render decorative weather animations
-function renderWeatherAnimation(variant) {
-  if (variant === "sunny") {
-    return (
-      <div className="sun-wrap">
-        <div className="sun" />
-      </div>
-    );
-  }
-
-  if (variant === "cloud") {
-    return (
-      <>
-        <svg className="cloud-svg cloud--left" viewBox="0 0 220 80" aria-hidden>
-          <g filter="url(#cloudBlur)">
-            <path
-              className="cloud-shape"
-              d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z"
-            />
-          </g>
-          <defs>
-            <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
-            </filter>
-          </defs>
-        </svg>
-      </>
-    );
-  }
-
-  if (variant === "rain") {
-    return (
-      <div className="rain-layer">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <i
-            key={i}
-            className="raindrop"
-            style={{
-              left: `${(i / 12) * 100}%`,
-              animationDelay: `${(i % 5) * 0.15}s`,
-            }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (variant === "snow") {
-    return (
-      <div className="snow-layer snow-layer--back">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <i
-            key={`back-${i}`}
-            className="snowflake"
-            style={{
-              left: `${(i / 12) * 100}%`,
-              animationDelay: `${(i % 6) * 0.4}s`,
-              "--dur": `${10 + (i % 6)}s`,
-              "--drift": `${i % 2 === 0 ? -40 : 40}px`,
-              width: `${8 + (i % 3) * 4}px`,
-              height: `${8 + (i % 3) * 4}px`,
-            }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (variant === "fog") {
-    return (
-      <>
-        <div className="fog fog--one" />
-        <div className="fog fog--two" />
-      </>
-    );
-  }
-
-  if (variant === "storm") {
-    return (
-      <div className="storm-layer">
-        <div className="lightning lightning--primary" />
-        <div className="lightning lightning--secondary" />
-      </div>
-    );
-  }
-
-  return null;
-}
-
 export default function Weather() {
-  const [city, setCity] = useState(() => localStorage.getItem("lastCity") || "London");
+  const [city, setCity] = useState("");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [unit, setUnit] = useState("C");
+  const [unit, setUnit] = useState("C"); // °C by default
   const [activeBg, setActiveBg] = useState("default");
   const [prevBg, setPrevBg] = useState(null);
+  const [isLocAllowed, setIsLocAllowed] = useState(null);
+  const [isRequestingLoc, setIsRequestingLoc] = useState(false);
 
-  // Fetch data initially
   useEffect(() => {
-    fetchWeather(city);
+    const storedCity = localStorage.getItem("userLocation");
+    if (storedCity) {
+      setIsLocAllowed(true);
+      setCity(JSON.parse(storedCity));
+    } else if (navigator.geolocation) {
+      requestLocation();
+    } else {
+      setIsLocAllowed(false);
+      setError(
+        "Your browser does not support location detection. Please enter city manually."
+      );
+      setCity("London");
+    }
   }, []);
+
+  useEffect(() => {
+    if (city) {
+      fetchWeather(city);
+    }
+  }, [city]);
+
+  async function getCurrentCity(lat, lon) {
+    const APIkey = import.meta.env.VITE_WEATHER_API_KEY;
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${APIkey}`
+      );
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].name) {
+        setCity(data[0].name);
+        setError(null);
+        setIsLocAllowed(true);
+        localStorage.setItem("userLocation", JSON.stringify(data[0].name));
+      } else {
+        setCity("London");
+        setError("Could not detect city from location.");
+        setIsLocAllowed(false);
+      }
+    } catch (err) {
+      console.log(err);
+      setCity("London");
+      setError(err.message);
+      setIsLocAllowed(false);
+    }
+  }
+
+  function requestLocation() {
+    setIsRequestingLoc(true);
+    navigator.geolocation.getCurrentPosition(
+      async function onSuccess(position) {
+        await getCurrentCity(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        setIsRequestingLoc(false);
+      },
+
+      function onError(err) {
+        console.log("Error", err);
+        setIsLocAllowed(false);
+        setError(
+          "Location is blocked. Please enable location in your browser settings to detect automatically."
+        );
+        setCity("London");
+        setIsRequestingLoc(false);
+      }
+    );
+  }
+
+  // Helper to determine weather background class
+  const weatherToClass = (desc = "") => {
+    if (!desc) return "weather-bg-default";
+    desc = desc.toLowerCase();
+    if (
+      desc.includes("rain") ||
+      desc.includes("shower") ||
+      desc.includes("drizzle")
+    )
+      return "weather-bg-rain";
+    if (desc.includes("snow") || desc.includes("blizzard"))
+      return "weather-bg-snow";
+    if (desc.includes("cloud") || desc.includes("overcast"))
+      return "weather-bg-cloud";
+    if (desc.includes("sun") || desc.includes("clear") || desc.includes("fair"))
+      return "weather-bg-sunny";
+    if (
+      desc.includes("fog") ||
+      desc.includes("mist") ||
+      desc.includes("haze") ||
+      desc.includes("smoke")
+    )
+      return "weather-bg-fog";
+    if (desc.includes("thunder") || desc.includes("storm"))
+      return "weather-bg-storm";
+    return "weather-bg-default";
+  };
+
+  // Render decorative weather animations
+  function renderWeatherAnimation(variant) {
+    if (variant === "sunny") {
+      return (
+        <div className="sun-wrap">
+          <div className="sun" />
+        </div>
+      );
+    }
+
+    if (variant === "cloud") {
+      return (
+        <>
+          <svg
+            className="cloud-svg cloud--left"
+            viewBox="0 0 220 80"
+            aria-hidden
+          >
+            <g filter="url(#cloudBlur)">
+              <path
+                className="cloud-shape"
+                d="M20 50 C20 34 42 22 62 26 C70 16 92 12 110 22 C130 8 160 12 170 28 C196 30 206 44 190 54 L30 60 C22 60 20 54 20 50 Z"
+              />
+            </g>
+            <defs>
+              <filter
+                id="cloudBlur"
+                x="-20%"
+                y="-20%"
+                width="140%"
+                height="140%"
+              >
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+              </filter>
+            </defs>
+          </svg>
+        </>
+      );
+    }
+
+    if (variant === "rain") {
+      return (
+        <div className="rain-layer">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <i
+              key={i}
+              className="raindrop"
+              style={{
+                left: `${(i / 12) * 100}%`,
+                animationDelay: `${(i % 5) * 0.15}s`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (variant === "snow") {
+      return (
+        <div className="snow-layer snow-layer--back">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <i
+              key={`back-${i}`}
+              className="snowflake"
+              style={{
+                left: `${(i / 12) * 100}%`,
+                animationDelay: `${(i % 6) * 0.4}s`,
+                "--dur": `${10 + (i % 6)}s`,
+                "--drift": `${i % 2 === 0 ? -40 : 40}px`,
+                width: `${8 + (i % 3) * 4}px`,
+                height: `${8 + (i % 3) * 4}px`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (variant === "fog") {
+      return (
+        <>
+          <div className="fog fog--one" />
+          <div className="fog fog--two" />
+        </>
+      );
+    }
+
+    if (variant === "storm") {
+      return (
+        <div className="storm-layer">
+          <div className="lightning lightning--primary" />
+          <div className="lightning lightning--secondary" />
+        </div>
+      );
+    }
+
+    return null;
+  }
 
   // ✅ Debounced search effect
   useEffect(() => {
@@ -167,11 +253,32 @@ export default function Weather() {
     try {
       setLoading(true);
       setError(null);
-      const json = await getWeatherData(c);
+
+      // Try using optional service helper first (if exported)
+      let json = null;
+      if (typeof getWeatherData === "function") {
+        try {
+          json = await getWeatherData(c);
+        } catch (e) {
+          // if service fails, we'll fallback to wttr.in below
+          json = null;
+        }
+      }
+
+      // Fallback to wttr.in if no json from service
+      if (!json) {
+        const res = await fetch(
+          `https://wttr.in/${encodeURIComponent(c)}?format=j1`
+        );
+        if (!res.ok) throw new Error("Failed to fetch");
+        json = await res.json();
+      }
+
       setData(json);
       localStorage.setItem("lastCity", c);
     } catch (e) {
-      setError(e);
+      setError(e?.message || String(e));
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -241,7 +348,10 @@ export default function Weather() {
         {renderWeatherAnimation(variant)}
       </div>
 
-      <div className="weather-inner" style={{ position: "relative", zIndex: 10 }}>
+      <div
+        className="weather-inner"
+        style={{ position: "relative", zIndex: 10 }}
+      >
         <h1>🌤️ Weather Dashboard</h1>
 
         <form onSubmit={handleSubmit} className="inline-form">
@@ -250,7 +360,22 @@ export default function Weather() {
             onChange={(e) => setCity(e.target.value)}
             placeholder="Enter city"
           />
-          <button type="submit">Fetch</button>
+          <button type="submit" disabled={isRequestingLoc}>
+            Fetch
+          </button>
+          <button
+            type="button"
+            disabled={isRequestingLoc}
+            onClick={() => requestLocation()}
+          >
+            {isLocAllowed
+              ? isRequestingLoc
+                ? "Updating..."
+                : "Update location"
+              : isRequestingLoc
+              ? "Detecting..."
+              : "Detect my location"}
+          </button>
         </form>
 
         <div className="dev-tools">
@@ -290,6 +415,14 @@ export default function Weather() {
                   <strong>Temperature:</strong>{" "}
                   {displayTemp(Number(current.temp_C))}°{unit}
                 </span>
+              </p>
+
+              <p>
+                <strong>Feels Like:</strong>{" "}
+                {displayTemp(Number(current.FeelsLikeC))}°{unit}
+              </p>
+              <p>
+                <strong>Wind Speed:</strong> {current.windspeedKmph} km/h
               </p>
               <p>
                 <strong>Humidity:</strong> {current.humidity}%

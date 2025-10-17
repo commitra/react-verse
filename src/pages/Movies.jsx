@@ -50,7 +50,7 @@ export default function Movies() {
       <ErrorMessage error={error} />
       <div className="grid">
         {filtered.map(f => (
-          <Card key={f.id} title={`${f.title} (${f.release_date})`}>
+          <Card key={f.id}  title={`${f.title} (${f.release_date})`} japaneseTitle={f.original_title} image={f.image}>
             <p><strong>Director:</strong> {f.director}</p>
             <p>{f.description.slice(0,120)}...</p>
             {/* TODO: Add poster images (need mapping) */}

@@ -34,31 +34,52 @@ export default function Space({ theme = 'light' }) {
 
   const isDark = theme === 'dark';
 
-  // Fetch both ISS position + crew
-  async function fetchData() {
-    try {
-      setLoading(true);
-      setError(null);
-      const [issRes, crewRes] = await Promise.all([
-        fetch('http://api.open-notify.org/iss-now.json'),
-        fetch('http://api.open-notify.org/astros.json')
-      ]);
-      if (!issRes.ok || !crewRes.ok) throw new Error('Failed to fetch');
-      const issJson = await issRes.json();
-      const crewJson = await crewRes.json();
-      setIss(issJson);
-      setCrew(crewJson.people || []);
-      setLastUpdated(new Date());
-    } catch (e) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
+// Fetch both ISS position + crew
+async function fetchData() {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // Add a small delay between requests to avoid rate limiting
+    const issRes = await fetch('/api/iss-now.json');
+    if (!issRes.ok) throw new Error('Failed to fetch ISS position');
+    const issJson = await issRes.json();
+    
+    // Wait 500ms before the second request
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const crewRes = await fetch('/api/astros.json');
+    if (!crewRes.ok) throw new Error('Failed to fetch crew data');
+    const crewJson = await crewRes.json();
+    
+    setIss(issJson);
+    setCrew(crewJson.people || []);
+    setLastUpdated(new Date());
+  } catch (e) {
+    setError(e);
+  } finally {
+    setLoading(false);
   }
+}
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+useEffect(() => {
+  let isMounted = true;
+  const controller = new AbortController();
+
+  const loadData = async () => {
+    if (isMounted) {
+      await fetchData();
+    }
+  };
+
+  loadData();
+
+  return () => {
+    isMounted = false;
+    controller.abort();
+  };
+}, []);
+
 
   // Proper dark/light theme colors
   const bgColor = isDark ? '#0f172a' : '#f8fafc';
@@ -89,7 +110,7 @@ export default function Space({ theme = 'light' }) {
       <h2
         style={{
           textAlign: 'center',
-          marginBottom: '1.8rem',
+          marginBottom: '0.8rem',
           fontSize: '2rem',
           fontWeight: '600',
           color: accent,
@@ -98,6 +119,19 @@ export default function Space({ theme = 'light' }) {
       >
         🌌 Space & Astronomy Dashboard
       </h2>
+
+      {lastUpdated && (
+        <p
+          style={{
+            textAlign: 'center',
+            color: subText,
+            fontSize: '0.95rem',
+            marginBottom: '1.2rem',
+          }}
+        >
+          Last updated: {lastUpdated.toLocaleString()}
+        </p>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
         <DashboardControls onRefresh={fetchData} />
@@ -135,11 +169,6 @@ export default function Space({ theme = 'light' }) {
               <p style={{ color: textColor, margin: '0.5rem 0' }}>
                 <strong>Longitude:</strong> {iss.iss_position.longitude}
               </p>
-              {lastUpdated && (
-                <p style={{ fontSize: '0.9rem', color: subText, margin: '0.5rem 0' }}>
-                  Last updated: {lastUpdated.toLocaleTimeString()}
-                </p>
-              )}
             </div>
 
             <div style={{ marginTop: '1rem' }}>
@@ -215,7 +244,7 @@ export default function Space({ theme = 'light' }) {
           fontSize: '0.9rem',
           color: subText,
         }}
-      >
+      > 
         Data sourced from{' '}
         <a
           href="http://api.open-notify.org"
@@ -224,8 +253,8 @@ export default function Space({ theme = 'light' }) {
             textDecoration: 'none',
             fontWeight: '500',
           }}
-          onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-          onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+          onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+          onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
         >
           Open Notify API
         </a>
