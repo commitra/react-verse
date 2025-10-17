@@ -54,6 +54,36 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
+## 🍽️ Nutrition Estimation (Recipes page)
+
+This project optionally integrates the Edamam Nutrition Analysis API to estimate nutrition for a recipe's ingredients on demand.
+
+Setup:
+
+1. Create a free Edamam account and an app for the Nutrition Analysis API.
+2. Copy keys into a local env file based on `env.example`:
+
+```
+cp env.example .env
+```
+
+3. Fill in values:
+
+```
+VITE_EDAMAM_APP_ID=your_edamam_app_id
+VITE_EDAMAM_APP_KEY=your_edamam_app_key
+```
+
+How it works:
+- `src/services/nutrition.js` posts ingredients to `/edamam/api/nutrition-details` through the dev proxy configured in `vite.config.js`.
+- Results are cached in-memory per unique ingredients list.
+- On `Recipes` cards, click “More Nutrition Info” to fetch and show calories, carbs, protein, fat, fiber, sugar, sodium.
+
+Notes:
+- Keys are only needed locally. Do not commit real keys. The feature gracefully no-ops if keys are missing.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions of all levels — from design tweaks to feature enhancements!
