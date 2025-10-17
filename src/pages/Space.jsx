@@ -110,7 +110,7 @@ useEffect(() => {
       <h2
         style={{
           textAlign: 'center',
-          marginBottom: '1.8rem',
+          marginBottom: '0.8rem',
           fontSize: '2rem',
           fontWeight: '600',
           color: accent,
@@ -119,6 +119,19 @@ useEffect(() => {
       >
         🌌 Space & Astronomy Dashboard
       </h2>
+
+      {lastUpdated && (
+        <p
+          style={{
+            textAlign: 'center',
+            color: subText,
+            fontSize: '0.95rem',
+            marginBottom: '1.2rem',
+          }}
+        >
+          Last updated: {lastUpdated.toLocaleString()}
+        </p>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
         <DashboardControls onRefresh={fetchData} />
@@ -156,11 +169,6 @@ useEffect(() => {
               <p style={{ color: textColor, margin: '0.5rem 0' }}>
                 <strong>Longitude:</strong> {iss.iss_position.longitude}
               </p>
-              {lastUpdated && (
-                <p style={{ fontSize: '0.9rem', color: subText, margin: '0.5rem 0' }}>
-                  Last updated: {lastUpdated.toLocaleTimeString()}
-                </p>
-              )}
             </div>
 
             <div style={{ marginTop: '1rem' }}>
@@ -236,7 +244,7 @@ useEffect(() => {
           fontSize: '0.9rem',
           color: subText,
         }}
-      >
+      > 
         Data sourced from{' '}
         <a
           href="http://api.open-notify.org"
@@ -245,8 +253,8 @@ useEffect(() => {
             textDecoration: 'none',
             fontWeight: '500',
           }}
-          onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-          onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+          onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+          onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
         >
           Open Notify API
         </a>
