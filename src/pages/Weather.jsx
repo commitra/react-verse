@@ -409,6 +409,14 @@ export default function Weather() {
                   {displayTemp(Number(current.temp_C))}°{unit}
                 </span>
               </p>
+
+              <p>
+                <strong>Feels Like:</strong>{" "}
+                {displayTemp(Number(current.FeelsLikeC))}°{unit}
+              </p>
+              <p>
+                <strong>Wind Speed:</strong> {current.windspeedKmph} km/h
+              </p>
               <p>
                 <strong>Humidity:</strong> {current.humidity}%
               </p>
