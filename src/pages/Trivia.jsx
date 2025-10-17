@@ -25,6 +25,7 @@ import Card from '../components/Card.jsx';
 export default function Trivia() {
   const [questions, setQuestions] = useState([]);
   const [category, setCategory] = useState('18'); // Science: Computers
+  const [difficulty, setDifficulty] = useState('easy'); // Default to easy
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [score, setScore] = useState(0);
@@ -32,7 +33,7 @@ export default function Trivia() {
 
   useEffect(() => {
     fetchQuestions();
-  }, [category]);
+  }, [category, difficulty]);
 
   async function fetchQuestions() {
     try {
@@ -42,7 +43,7 @@ export default function Trivia() {
       setShowReview(false);
 
       const res = await fetch(
-        `https://opentdb.com/api.php?amount=5&category=${category}&type=multiple`
+        `https://opentdb.com/api.php?amount=5&category=${category}&difficulty=${difficulty}&type=multiple`
       );
       if (!res.ok) throw new Error('Failed to fetch');
       const json = await res.json();
@@ -88,21 +89,47 @@ export default function Trivia() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Trivia Quiz</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0 }}>Trivia Quiz</h2>
+        <span style={{ 
+          backgroundColor: difficulty === 'easy' ? '#4caf50' : difficulty === 'medium' ? '#ff9800' : '#f44336',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '0.9em'
+        }}>
+          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+        </span>
+      </div>
 
       {/* Category Selector */}
-      <label>
-        Category:{' '}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          disabled={showReview}
-        >
-          <option value="18">Science: Computers</option>
-          <option value="21">Sports</option>
-          <option value="23">History</option>
-        </select>
-      </label>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+        <label>
+          Category:{' '}
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            disabled={showReview}
+          >
+            <option value="18">Science: Computers</option>
+            <option value="21">Sports</option>
+            <option value="23">History</option>
+          </select>
+        </label>
+        {/* Difficulty Selector */}
+        <label>
+          Difficulty:{' '}
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            disabled={showReview}
+          >
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
 
       {/* Loading / Error */}
       {loading && <Loading />}
