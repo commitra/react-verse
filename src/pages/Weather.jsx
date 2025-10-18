@@ -26,6 +26,8 @@ import Loading from "../components/Loading.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
 import Card from "../components/Card.jsx";
 import Skeleton from "../components/Skeleton.jsx";
+import HeroSection from '../components/HeroSection';
+import Cloud from '../Images/Cloud.jpg';
 import {
   getWeatherData,
   clearWeatherCache,
@@ -154,6 +156,15 @@ export default function Weather() {
     if (variant === "cloud") {
       return (
         <>
+                <HeroSection
+  image={Cloud}
+  title={
+    <>
+  Weather <span style={{ color: "black" }}>Wonders</span>
+  </>
+  }
+  subtitle="Stay ahead of the weather with real-time updates and accurate forecasts tailored just for you"
+/>
           <svg
             className="cloud-svg cloud--left"
             viewBox="0 0 220 80"
@@ -342,6 +353,7 @@ export default function Weather() {
         background: `var(--${activeBg}-gradient)`,
         transition: "background 1s ease-in-out",
         position: "relative",
+        marginTop: "45vh",
       }}
     >
       <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>

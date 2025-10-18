@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Heart, X, Download, ExternalLink, RefreshCw } from "lucide-react";
+import HeroSection from '../components/HeroSection';
+import Animals from '../Images/Pets.jpg';
 
 export default function Pets() {
   const [dog, setDog] = useState(null);
@@ -592,7 +594,15 @@ export default function Pets() {
           }
 
       `}</style>
-
+      <HeroSection
+      image={Animals}
+        title={
+    <>
+      Paws, Love, <span style={{ color: 'orange' }}>Repeat</span>
+    </>
+  }
+      subtitle="Because every pet deserves a life full of love and tail wags."
+    />
       <div className="container">
         <div className="main-content">
           <div className="header">

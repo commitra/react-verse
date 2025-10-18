@@ -21,6 +21,8 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import HeroSection from '../components/HeroSection';
+import Food from '../Images/Food.jpg';
 
 export default function Recipes() {
   const [ingredient, setIngredient] = useState('chicken');
@@ -53,6 +55,15 @@ export default function Recipes() {
 
   return (
     <div>
+      <HeroSection
+      image={Food}
+        title={
+    <>
+      Delicious Made <span style={{ color: 'yellow' }}>Simple</span>
+    </>
+  }
+      subtitle="Wholesome recipes with heart, made easy for every home cook"
+    />
       <h2>Recipe Finder</h2>
       <form onSubmit={e => { e.preventDefault(); search(); }} className="inline-form">
         <input value={ingredient} onChange={e => setIngredient(e.target.value)} placeholder="Ingredient" />

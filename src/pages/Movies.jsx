@@ -21,6 +21,8 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import HeroSection from '../components/HeroSection';
+import Cinema from '../Images/Movie.jpg';
 
 export default function Movies() {
   const [films, setFilms] = useState([]);
@@ -44,6 +46,15 @@ export default function Movies() {
 
   return (
     <div>
+      <HeroSection
+      image={Cinema}
+      title={
+    <>
+      Lights, Camera, <span style={{ color: 'darkred' }}>Binge!</span>
+    </>
+  }
+      subtitle="Dive deep into storytelling, performances, and the art of filmmaking."
+    />
       <h2>Studio Ghibli Films</h2>
       <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter by director or year" />
       {loading && <Loading />}

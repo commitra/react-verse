@@ -23,6 +23,8 @@ import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
 import IssMap from '../components/IssMap.jsx';
 import DashboardControls from "../components/DashboardControls.jsx";
+import HeroSection from '../components/HeroSection';
+import SpaceImg from '../Images/Space.jpg';
 
 
 export default function Space({ theme = 'light' }) {
@@ -91,6 +93,16 @@ useEffect(() => {
   const borderColor = isDark ? '#334155' : '#e2e8f0';
 
   return (
+    <>
+    <HeroSection
+  image={SpaceImg}
+    title={
+    <>
+      Orbiting Earth, <span style={{ color: 'purple' }}>Sharing Stories</span>
+    </>
+  }
+  subtitle="Track the International Space Station and dive into the lives of its courageous crew"
+/>
     <div
       style={{
         maxWidth: '1000px',
@@ -260,5 +272,6 @@ useEffect(() => {
         </a>
       </p>
     </div>
+    </>
   );
 }

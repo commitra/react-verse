@@ -22,6 +22,8 @@ import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
 import CountryTrendChart from '../components/CountryTrendChart.jsx';
+import HeroSection from '../components/HeroSection';
+import Corona from '../Images/Corona.jpg';
 
 export default function Covid() {
   const [summary, setSummary] = useState(null);
@@ -69,7 +71,17 @@ export default function Covid() {
   );
 
   return (
+    
     <div>
+     <HeroSection
+  image={Corona}
+  title={
+    <>
+      COVID-19 <span style={{ color: 'red' }}>Tracker</span>
+    </>
+  }
+  subtitle="Stay informed with the latest COVID-19 stats worldwide."
+/>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <h2>COVID-19 Tracker</h2>
         <button onClick={fetchSummary} disabled={loading}>
