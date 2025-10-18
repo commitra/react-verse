@@ -24,6 +24,9 @@ import Loading from "../components/Loading.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
 import Card from "../components/Card.jsx";
 import formatNumber from "../utilities/numberFormatter.js";
+import HeroSection from '../components/HeroSection';
+import CryptoImg from '../Images/Cryptocurrency.jpg';
+
 
 export default function Crypto() {
   const [coins, setCoins] = useState([]);
@@ -59,6 +62,15 @@ export default function Crypto() {
 
   return (
     <div>
+      <HeroSection
+      image= {CryptoImg}
+        title={
+    <>
+      Decoding Digital <span style={{ color: 'green' }}>Currency</span>
+    </>
+  }
+      subtitle="Empowering you to invest, trade, and understand crypto with confidence"
+    />
       <h2>💹 Cryptocurrency Tracker</h2>
       <input
         value={query}

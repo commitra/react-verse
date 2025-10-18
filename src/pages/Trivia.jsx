@@ -21,6 +21,8 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import HeroSection from '../components/HeroSection';
+import Quiz from '../Images/Quiz.jpg';
 
 export default function Trivia() {
   const [questions, setQuestions] = useState([]);
@@ -88,6 +90,16 @@ export default function Trivia() {
   const allAnswered = answeredCount === totalQuestions && totalQuestions > 0;
 
   return (
+    <>
+        <HeroSection
+  image={Quiz}
+ title={
+    <>
+      Think Fast, <span style={{ color: 'grey' }}>Learn Faster</span>
+    </>
+  }
+  subtitle="A trivia playground for curious minds, quick thinkers, and casual know-it-alls"
+/>
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
         <h2 style={{ margin: 0 }}>Trivia Quiz</h2>
@@ -265,6 +277,7 @@ export default function Trivia() {
         </div>
       )}
     </div>
+    </>
   );
 }
 

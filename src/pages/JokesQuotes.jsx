@@ -21,6 +21,8 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import HeroSection from '../components/HeroSection';
+import Flowers from '../Images/Flowers.jpg';
 
 export default function JokesQuotes() {
   const [joke, setJoke] = useState(null);
@@ -66,6 +68,16 @@ export default function JokesQuotes() {
 
   return (
     <div>
+      <HeroSection
+      image={Flowers}
+       title={
+    <>
+      Quote It, Joke It, <span style={{ color: 'skyblue' }}>Live It</span>
+    </>
+  }
+
+      subtitle="Whether you need a laugh or a little life wisdom, we’ve got a line for that."
+    />
       <h2>Jokes & Quotes</h2>
       <div className="flex gap">
         <button onClick={fetchJoke}>New Joke</button>
