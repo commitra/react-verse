@@ -54,47 +54,32 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🍽️ Nutrition Estimation (Recipes page)
+## 🍽️ Nutrition (Recipes) — optional
 
-This project optionally integrates the Edamam Nutrition Analysis API to estimate nutrition for a recipe's ingredients on demand.
+Estimate nutrition for a recipe's ingredients. Works with RapidAPI or native Edamam; falls back to a local mock if no keys are set.
 
-Setup (native Edamam):
+Setup
+1. Create `.env` from the example:
+   - `cp env.example .env`
+2. Choose ONE provider:
+   - RapidAPI (recommended for quick start):
+     - `VITE_RAPIDAPI_KEY=your_rapidapi_key`
+     - `VITE_RAPIDAPI_HOST=<copy the exact X-RapidAPI-Host from RapidAPI>`
+       (e.g. `edamam-nutrition-analysis.p.rapidapi.com` — value may vary)
+   - Native Edamam:
+     - `VITE_EDAMAM_APP_ID=your_edamam_app_id`
+     - `VITE_EDAMAM_APP_KEY=your_edamam_app_key`
+3. Restart dev server.
 
-1. Create a free Edamam account and an app for the Nutrition Analysis API.
-2. Copy keys into a local env file based on `env.example`:
+Use
+- Open Recipes → click “More Nutrition Info”.
+- Shows: Calories (kcal), Carbs (g), Protein (g), Fat (g), Fiber (g), Sugar (g), Sodium (mg).
+- If no keys are set, the button shows “Demo Nutrition (mock)”.
 
-```
-cp env.example .env
-```
-
-3. Fill in values:
-
-```
-VITE_EDAMAM_APP_ID=your_edamam_app_id
-VITE_EDAMAM_APP_KEY=your_edamam_app_key
-```
-
-How it works:
-- `src/services/nutrition.js` posts ingredients to `/edamam/api/nutrition-details` through the dev proxy configured in `vite.config.js`.
-- Results are cached in-memory per unique ingredients list.
-- On `Recipes` cards, click “More Nutrition Info” to fetch and show calories, carbs, protein, fat, fiber, sugar, sodium.
-
-Notes:
-- Keys are only needed locally. Do not commit real keys. The feature gracefully no-ops if keys are missing.
-
-Using RapidAPI instead of native keys:
-1. Subscribe to the Edamam Nutrition Analysis API on RapidAPI.
-2. Copy your RapidAPI key and host, then add to `.env` (see `env.example`):
-
-```
-VITE_RAPIDAPI_KEY=your_rapidapi_key
-VITE_RAPIDAPI_HOST=edamam-edamam-nutrition-analysis.p.rapidapi.com
-```
-
-How selection works:
-- If RapidAPI vars are set, the app calls RapidAPI with `x-rapidapi-key`/`x-rapidapi-host`.
-- Else if native Edamam vars are set, it uses the native API via the Vite proxy.
-- Else it falls back to a local mock JSON for demo/screenshots.
+Notes & troubleshooting
+- Do not commit real keys. `.env` is local only.
+- RapidAPI: ensure Host matches your snippet exactly; we support common endpoints.
+- If you see 401/404, double‑check Host/key and quota, then restart the dev server.
 
 ---
 
