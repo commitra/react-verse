@@ -58,7 +58,7 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 
 This project optionally integrates the Edamam Nutrition Analysis API to estimate nutrition for a recipe's ingredients on demand.
 
-Setup:
+Setup (native Edamam):
 
 1. Create a free Edamam account and an app for the Nutrition Analysis API.
 2. Copy keys into a local env file based on `env.example`:
@@ -81,6 +81,20 @@ How it works:
 
 Notes:
 - Keys are only needed locally. Do not commit real keys. The feature gracefully no-ops if keys are missing.
+
+Using RapidAPI instead of native keys:
+1. Subscribe to the Edamam Nutrition Analysis API on RapidAPI.
+2. Copy your RapidAPI key and host, then add to `.env` (see `env.example`):
+
+```
+VITE_RAPIDAPI_KEY=your_rapidapi_key
+VITE_RAPIDAPI_HOST=edamam-edamam-nutrition-analysis.p.rapidapi.com
+```
+
+How selection works:
+- If RapidAPI vars are set, the app calls RapidAPI with `x-rapidapi-key`/`x-rapidapi-host`.
+- Else if native Edamam vars are set, it uses the native API via the Vite proxy.
+- Else it falls back to a local mock JSON for demo/screenshots.
 
 ---
 

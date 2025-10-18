@@ -33,6 +33,9 @@ export default function Recipes() {
   const [nutrition, setNutrition] = useState({});
   const [nLoading, setNLoading] = useState({});
   const [nError, setNError] = useState({});
+  const hasRapid = Boolean(import.meta.env.VITE_RAPIDAPI_KEY && import.meta.env.VITE_RAPIDAPI_HOST);
+  const hasEdamam = Boolean(import.meta.env.VITE_EDAMAM_APP_ID && import.meta.env.VITE_EDAMAM_APP_KEY);
+  const hasProvider = hasRapid || hasEdamam;
 
   useEffect(() => { search(); }, []);
 
@@ -110,7 +113,7 @@ export default function Recipes() {
             <Card key={m.idMeal} title={m.strMeal}>
               <img src={m.strMealThumb} alt="" width="100" />
               <button type="button" onClick={() => toggleNutrition(m.idMeal)}>
-                {isOpen ? 'Hide Nutrition' : 'More Nutrition Info'}
+                {isOpen ? 'Hide Nutrition' : (hasProvider ? 'More Nutrition Info' : 'Demo Nutrition (mock)')}
               </button>
               {isOpen && (
                 <div style={{ marginTop: '0.5rem' }}>
@@ -119,7 +122,7 @@ export default function Recipes() {
                   {data && !isNL && !err && (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <tbody>
-                        <tr><td>Calories</td><td style={{ textAlign: 'right' }}>{data.calories?.toLocaleString?.() || 0}</td></tr>
+                        <tr><td>Calories (kcal)</td><td style={{ textAlign: 'right' }}>{data.calories?.toLocaleString?.() || 0}</td></tr>
                         <tr><td>Carbs (g)</td><td style={{ textAlign: 'right' }}>{data.carbsG}</td></tr>
                         <tr><td>Protein (g)</td><td style={{ textAlign: 'right' }}>{data.proteinG}</td></tr>
                         <tr><td>Fat (g)</td><td style={{ textAlign: 'right' }}>{data.fatG}</td></tr>

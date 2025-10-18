@@ -5,6 +5,11 @@ const getEnv = () => ({
   appKey: import.meta.env.VITE_EDAMAM_APP_KEY,
 });
 
+const getRapidEnv = () => ({
+  rapidKey: import.meta.env.VITE_RAPIDAPI_KEY,
+  rapidHost: import.meta.env.VITE_RAPIDAPI_HOST,
+});
+
 const normalize = (apiResponse) => {
   if (!apiResponse) return null;
   const n = apiResponse.totalNutrients || {};
@@ -25,27 +30,61 @@ const ingredientsKey = (ingredients) => ingredients.map((s) => s.trim().toLowerC
 
 export async function estimateNutritionForIngredients(ingredients) {
   const { appId, appKey } = getEnv();
+  const { rapidKey, rapidHost } = getRapidEnv();
   if (!Array.isArray(ingredients) || ingredients.length === 0) return null;
 
   const key = ingredientsKey(ingredients);
   if (cache.has(key)) return cache.get(key);
 
-  if (!appId || !appKey) {
-    return null;
+  // Prefer RapidAPI if configured
+  if (rapidKey && rapidHost) {
+    const isMulti = ingredients.length > 1;
+    const nutritionType = isMulti ? 'cooking' : 'logging';
+    const ingrString = isMulti ? ingredients.join(', ') : String(ingredients[0]);
+    const base = `https://${rapidHost}`;
+    const paths = [
+      `/api/nutrition-details?ingr=${encodeURIComponent(ingrString)}&nutrition-type=${nutritionType}`,
+      `/api/nutrition-data?ingr=${encodeURIComponent(ingrString)}&nutrition-type=${nutritionType}`,
+    ];
+    for (const p of paths) {
+      const res = await fetch(`${base}${p}`, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': rapidKey,
+          'x-rapidapi-host': rapidHost,
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const normalized = normalize(json);
+        cache.set(key, normalized);
+        return normalized;
+      }
+      if (res.status !== 404) {
+        throw new Error('Failed to fetch nutrition');
+      }
+    }
+    throw new Error('Nutrition endpoint not found on RapidAPI host');
   }
 
-  const url = `/edamam/api/nutrition-details?app_id=${encodeURIComponent(appId)}&app_key=${encodeURIComponent(appKey)}`;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: 'Recipe', ingr: ingredients }),
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch nutrition');
+  // Fallback to native Edamam if configured
+  if (appId && appKey) {
+    const url = `/edamam/api/nutrition-details?app_id=${encodeURIComponent(appId)}&app_key=${encodeURIComponent(appKey)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Recipe', ingr: ingredients }),
+    });
+    if (!res.ok) throw new Error('Failed to fetch nutrition');
+    const json = await res.json();
+    const normalized = normalize(json);
+    cache.set(key, normalized);
+    return normalized;
   }
 
+  // Final fallback to mock
+  const res = await fetch('/mock/nutrition-sample.json');
+  if (!res.ok) return null;
   const json = await res.json();
   const normalized = normalize(json);
   cache.set(key, normalized);
