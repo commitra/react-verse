@@ -8,11 +8,12 @@
  *  - [ ] Add loading skeleton instead of plain text
  *  - [ ] Style forecast cards with condition color badges
  * Medium:
- *  - [ ] Dynamic background / gradient based on condition (sunny, rain, snow)
- *  - [ ] Input debounced search (on stop typing)
- *  - [ ] Persist last searched city (localStorage)
- *  - [ ] Add error retry button component
- *  - [ ] Add favorites list (pin cities)
+ * - [x] Dynamic background / gradient based on condition (sunny, rain, snow)
+ * - [x] Input debounced search (on stop typing)
+ * - [x] Persist last searched city (localStorage)
+ * - [x] Add error retry button component
+ * - [ ] Add favorites list (pin cities)
+ * - [x] Optimize API usage by adding debounced search delay
  * Advanced:
  *  - [ ] Hourly forecast visualization (line / area chart)
  *  - [ ] Animate background transitions
@@ -239,6 +240,15 @@ export default function Weather() {
     return null;
   }
 
+  // ✅ Debounced search effect
+  useEffect(() => {
+    if (!city.trim()) return;
+    const handler = setTimeout(() => {
+      fetchWeather(city);
+    }, 800); // delay in ms
+    return () => clearTimeout(handler);
+  }, [city]);
+
   async function fetchWeather(c) {
     try {
       setLoading(true);
@@ -385,10 +395,7 @@ export default function Weather() {
 
         {loading && <Loading />}
         {error && (
-          <ErrorMessage
-            message={error.message}
-            onRetry={() => fetchWeather(city)}
-          />
+          <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />
         )}
 
         {data && !loading && (
@@ -427,40 +434,23 @@ export default function Weather() {
 
             {/* 3-Day Forecast */}
             {forecast.map((day, i) => {
-              const condition =
-                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+              const condition = day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
               const badge = getBadgeStyle(condition);
 
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {day.hourly?.[0] &&
-                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
-                      <div style={{ marginTop: 8 }}>
-                        <img
-                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
-                          alt={
-                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
-                            "forecast icon"
-                          }
-                          style={{
-                            width: 40,
-                            height: 40,
-                            objectFit: "contain",
-                          }}
-                          onError={(e) =>
-                            (e.currentTarget.style.display = "none")
-                          }
-                        />
-                      </div>
-                    )}
+                  {day.hourly?.[0] && getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                    <div style={{ marginTop: 8 }}>
+                      <img
+                        src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                        alt={day.hourly?.[0]?.weatherDesc?.[0]?.value || "forecast icon"}
+                        style={{ width: 40, height: 40, objectFit: "contain" }}
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                      />
+                    </div>
+                  )}
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginTop: "17px",
-                    }}
-                  >
+                  <div style={{ display: "flex", gap: "8px", marginTop: "17px" }}>
                     <strong>Avg Temp:</strong>{" "}
                     {displayTemp(Number(day.avgtempC))}°{unit}
                     <div
