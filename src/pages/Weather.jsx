@@ -407,7 +407,7 @@ export default function Weather() {
 
         {loading && <Loading />}
         {error && (
-          <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />
+          <ErrorMessage message={error} onRetry={() => fetchWeather(city)} />
         )}
 
         {data && !loading && (
