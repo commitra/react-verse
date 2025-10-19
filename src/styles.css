@@ -814,4 +814,112 @@ blockquote {
     font-size: 1rem;
   }
 }
+
+
+.fav-icon {
+  cursor: pointer;
+  padding: 6px; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(242, 215, 220);
+  transition: all 0.25s ease;
+  box-shadow:
+    0 4px 6px rgba(16, 11, 11, 0.1),   
+    0 0 10px rgba(242, 215, 220, 0.4); 
 }
+
+.fav-icon:hover {
+  background-color: rgb(246, 215, 220);
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 8px rgba(16, 11, 11, 0.15),
+    0 0 15px rgba(242, 215, 220, 0.5);
+}
+
+.fav-icon:active {
+  transform: scale(0.95);
+}
+
+.spark {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, rgb(255, 0, 255), rgba(255, 0, 0, 0));
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  filter: drop-shadow(0 0 4px #ff1a1a);
+}
+
+.favourites-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 30%;
+  width: 300px;
+  z-index: 30;
+  background: #ffffff;
+  border: 1px solid rgb(198, 198, 198);
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  animation: fadeSlideIn 0.2s ease;
+}
+
+
+.favourites-dropdown select {
+  width: 100%;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f8f8f8;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  color: #333;
+  transition: background 0.2s ease;
+}
+
+.favourites-dropdown select:hover {
+  background: #f0f0f0;
+}
+.favourites-option {
+  background: #4a90e2;
+  color: #ffffff; 
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.favourites-option:hover {
+  background-color: #3578c0;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 800px) {
+  .favourites-dropdown {
+    position: absolute;
+    top: 80%;
+    right: 0;
+    width: 50%;
+    box-shadow: none;
+    margin-top: 8px;
+  }
+
+  .favourites-dropdown select {
+    background: #fff;
+    border: 1px solid #ddd;
+  }
+}
+
+
