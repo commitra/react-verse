@@ -26,7 +26,7 @@ import Card from "../components/Card.jsx";
 import formatNumber from "../utilities/numberFormatter.js";
 import HeroSection from '../components/HeroSection';
 import CryptoImg from '../Images/Cryptocurrency.jpg';
-
+import CryptoCalculatorModal from "../components/CryptoCalculatorModal.jsx";
 
 export default function Crypto() {
   const [coins, setCoins] = useState([]);
@@ -34,6 +34,7 @@ export default function Crypto() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   useEffect(() => {
     fetchCoins();
@@ -78,6 +79,23 @@ export default function Crypto() {
         placeholder="Search coin..."
         style={{ marginBottom: "1rem" }}
       />
+
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
+        <button
+          onClick={() => setIsCalculatorOpen(true)}
+          style={{
+            padding: '0.5rem 1rem',
+            cursor: 'pointer',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          24h Calculator
+        </button>
+      </div>
 
       {loading && <Loading />}
       <ErrorMessage error={error} />
@@ -134,6 +152,14 @@ export default function Crypto() {
 
         <button onClick={() => setPage((p) => p + 1)}>Next</button>
       </div>
+
+        {isCalculatorOpen && coins.length > 0 && (
+          <CryptoCalculatorModal
+            coinData={coins}
+            onClose={() => setIsCalculatorOpen(false)}
+          />
+        )}
+        
     </div>
   );
 }
