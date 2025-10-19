@@ -21,18 +21,21 @@
  *  - [ ] Extract API call into /src/services/weather.js and add caching
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Loading from "../components/Loading.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
 import Card from "../components/Card.jsx";
 import Skeleton from "../components/Skeleton.jsx";
-import HeroSection from '../components/HeroSection';
-import Cloud from '../Images/Cloud.jpg';
+import HeroSection from "../components/HeroSection";
+import Cloud from "../Images/Cloud.jpg";
 import {
   getWeatherData,
   clearWeatherCache,
   getCacheStats,
 } from "../services/weather.js";
+import { IoMdHeartEmpty } from "react-icons/io";
+import { IoMdHeart } from "react-icons/io";
+import SprinkleEffect from "../components/SprinkleEffect.jsx";
 
 export default function Weather() {
   const [city, setCity] = useState("");
@@ -44,6 +47,10 @@ export default function Weather() {
   const [prevBg, setPrevBg] = useState(null);
   const [isLocAllowed, setIsLocAllowed] = useState(null);
   const [isRequestingLoc, setIsRequestingLoc] = useState(false);
+  const [trigger, setTrigger] = useState(null);
+  const [favourites, setFavourites] = useState([]);
+  const [showFavourites, setShowFavourites] = useState(false);
+  const btnRef = useRef(null);
 
   useEffect(() => {
     const storedCity = localStorage.getItem("userLocation");
@@ -156,15 +163,15 @@ export default function Weather() {
     if (variant === "cloud") {
       return (
         <>
-                <HeroSection
-  image={Cloud}
-  title={
-    <>
-  Weather <span style={{ color: "black" }}>Wonders</span>
-  </>
-  }
-  subtitle="Stay ahead of the weather with real-time updates and accurate forecasts tailored just for you"
-/>
+          <HeroSection
+            image={Cloud}
+            title={
+              <>
+                Weather <span style={{ color: "black" }}>Wonders</span>
+              </>
+            }
+            subtitle="Stay ahead of the weather with real-time updates and accurate forecasts tailored just for you"
+          />
           <svg
             className="cloud-svg cloud--left"
             viewBox="0 0 220 80"
@@ -345,6 +352,44 @@ export default function Weather() {
     return { color: "#E0E0E0", label: "Clear 🌤️" };
   };
 
+  useEffect(() => {
+    setFavourites(JSON.parse(localStorage.getItem("favourites")) || []);
+  }, []);
+
+  // handle add to favourite
+  const handleAddToFav = () => {
+    const rect = btnRef.current.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    // Set trigger
+    setTrigger({ x, y });
+
+    // Reset trigger after a short delay to prevent unwanted reruns
+    setTimeout(() => setTrigger(null), 50);
+
+    let updatedFav;
+    const formattedCity = formatCityName(city);
+    const isFav = favourites.some(
+      (c) => c.toLowerCase() === city.toLowerCase()
+    );
+    updatedFav = isFav
+      ? favourites.filter((item) => item.toLowerCase() !== city.toLowerCase())
+      : [...favourites, formattedCity];
+
+    setFavourites(updatedFav);
+    localStorage.setItem("favourites", JSON.stringify(updatedFav));
+  };
+
+  const isFav = favourites.some((c) => c.toLowerCase() === city.toLowerCase());
+
+  function formatCityName(str) {
+    return str
+      .split(" ")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
   return (
     <div
       className="weather-page"
@@ -390,7 +435,7 @@ export default function Weather() {
           </button>
         </form>
 
-        <div className="dev-tools">
+        <div className="dev-tools" style={{ position: "relative" }}>
           <button onClick={handleClearCache} className="dev-btn">
             Clear Cache
           </button>
@@ -403,18 +448,70 @@ export default function Weather() {
           >
             Switch to °{unit === "C" ? "F" : "C"}
           </button>
+          <button
+            className="dev-btn"
+            onClick={() => setShowFavourites((prev) => !prev)}
+          >
+            {showFavourites ? "Hide Favourites" : " See Favourites"}
+          </button>
+          {showFavourites && (
+            <div className="favourites-dropdown">
+              <select
+                value=""
+                onChange={(e) => {
+                  fetchWeather(e.target.value);
+                  setCity(e.target.value);
+                  setShowFavourites(false);
+                }}
+              >
+                <option value="" disabled>
+                  Select a favourite
+                </option>
+                {favourites.map((fav, i) => (
+                  <option
+                    className="favourites-option"
+                    value={formatCityName(fav)}
+                    key={formatCityName(fav)}
+                  >
+                    {formatCityName(fav)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {loading && <Loading />}
         {error && (
-          <ErrorMessage message={error.message} onRetry={() => fetchWeather(city)} />
+          <ErrorMessage
+            message={error.message}
+            onRetry={() => fetchWeather(city)}
+          />
         )}
 
         {data && !loading && (
           <div className="dashboard-grid">
             {/* Current Weather */}
             <Card title="Current Weather" size="large">
-              <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
+              <div
+                style={{ display: "flex", gap: "1rem", alignItems: "baseline" }}
+              >
+                <h2>{data.nearest_area?.[0]?.areaName?.[0]?.value || city}</h2>
+                <div
+                  className="fav-icon"
+                  ref={btnRef}
+                  onClick={handleAddToFav}
+                  title={isFav ? "Remove from favourites" : "Add to favourites"}
+                >
+                  {isFav ? (
+                    <IoMdHeart size={18} color="#b22222" />
+                  ) : (
+                    <IoMdHeartEmpty size={18} color="#b22222" />
+                  )}
+                </div>
+                <SprinkleEffect trigger={trigger} />
+              </div>
+
               <p style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 {current && getIconUrl(current.weatherIconUrl) && (
                   <img
@@ -446,23 +543,36 @@ export default function Weather() {
 
             {/* 3-Day Forecast */}
             {forecast.map((day, i) => {
-              const condition = day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
+              const condition =
+                day.hourly?.[0]?.weatherDesc?.[0]?.value || "Clear";
               const badge = getBadgeStyle(condition);
 
               return (
                 <Card key={i} title={i === 0 ? "Today" : `Day ${i + 1}`}>
-                  {day.hourly?.[0] && getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
-                    <div style={{ marginTop: 8 }}>
-                      <img
-                        src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
-                        alt={day.hourly?.[0]?.weatherDesc?.[0]?.value || "forecast icon"}
-                        style={{ width: 40, height: 40, objectFit: "contain" }}
-                        onError={(e) => (e.currentTarget.style.display = "none")}
-                      />
-                    </div>
-                  )}
+                  {day.hourly?.[0] &&
+                    getIconUrl(day.hourly?.[0]?.weatherIconUrl) && (
+                      <div style={{ marginTop: 8 }}>
+                        <img
+                          src={getIconUrl(day.hourly?.[0]?.weatherIconUrl)}
+                          alt={
+                            day.hourly?.[0]?.weatherDesc?.[0]?.value ||
+                            "forecast icon"
+                          }
+                          style={{
+                            width: 40,
+                            height: 40,
+                            objectFit: "contain",
+                          }}
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
+                        />
+                      </div>
+                    )}
 
-                  <div style={{ display: "flex", gap: "8px", marginTop: "17px" }}>
+                  <div
+                    style={{ display: "flex", gap: "8px", marginTop: "17px" }}
+                  >
                     <strong>Avg Temp:</strong>{" "}
                     {displayTemp(Number(day.avgtempC))}°{unit}
                     <div
