@@ -1,22 +1,3 @@
-/**
- * MOVIES (GHIBLI) DASHBOARD TODOs
- * -------------------------------
- * Easy:
- *  - [ ] Add select dropdown for director filtering instead of text filter
- *  - [ ] Add film poster (map titles to known images or placeholder search)
- *  - [ ] Show running time, score, producer fields
- *  - [ ] Expand/collapse description
- * Medium:
- *  - [ ] Client-side pagination / virtualization for performance (future if many APIs)
- *  - [ ] Favorites / watchlist (localStorage)
- *  - [ ] Sort (Year asc/desc, Title A-Z, RT Score)
- *  - [ ] Detail modal with full info & external links
- * Advanced:
- *  - [ ] Pre-fetch details or combine with other Studio Ghibli endpoints (people, locations)
- *  - [ ] Add fuzzy search (title, director, description)
- *  - [ ] Offline cache using indexedDB (e.g., idb library)
- *  - [ ] Extract data layer + hook (useGhibliFilms)
- */
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
@@ -33,20 +14,55 @@ export default function Movies() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState(null);
 
+  // 🗝️ Replace with your own OMDb API key
+  const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 
-  useEffect(() => { fetchFilms(); }, []);
+
+  useEffect(() => {
+    fetchFilms();
+  }, []);
 
   async function fetchFilms() {
     try {
-      setLoading(true); setError(null);
+      setLoading(true);
+      setError(null);
+
+      // Step 1: Fetch Ghibli films
       const res = await fetch('https://ghibliapi.vercel.app/films');
       if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
-      setFilms(json);
-    } catch (e) { setError(e); } finally { setLoading(false); }
+      const filmsData = await res.json();
+
+      // Step 2: Fetch IMDb rating for each film
+      const filmsWithRatings = await Promise.all(
+        filmsData.map(async (film) => {
+          try {
+            const omdbRes = await fetch(
+              `https://www.omdbapi.com/?t=${encodeURIComponent(film.title)}&apikey=${OMDB_API_KEY}`
+            );
+            const omdbData = await omdbRes.json();
+            return {
+              ...film,
+              imdbRating: omdbData.imdbRating || 'N/A', // ⭐ IMDb rating section
+            };
+          } catch {
+            return { ...film, imdbRating: 'N/A' };
+          }
+        })
+      );
+
+      setFilms(filmsWithRatings);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const filtered = films.filter(f => f.director.toLowerCase().includes(filter.toLowerCase()) || f.release_date.includes(filter));
+  const filtered = films.filter(
+    (f) =>
+      f.director.toLowerCase().includes(filter.toLowerCase()) ||
+      f.release_date.includes(filter)
+  );
 
   const openModal = (film) => {
     setSelectedFilm(film);
@@ -61,21 +77,25 @@ export default function Movies() {
   return (
     <div>
       <HeroSection
-      image={Cinema}
-      title={
-    <>
-      Lights, Camera, <span style={{ color: 'darkred' }}>Binge!</span>
-    </>
-  }
-      subtitle="Dive deep into storytelling, performances, and the art of filmmaking."
-    />
+        image={Cinema}
+        title={
+          <>
+            Lights, Camera, <span style={{ color: 'darkred' }}>Binge!</span>
+          </>
+        }
+        subtitle="Dive deep into storytelling, performances, and the art of filmmaking."
+      />
       <h2>Studio Ghibli Films</h2>
-      <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter by director or year" />
+      <input
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="Filter by director or year"
+      />
       {loading && <Loading />}
       <ErrorMessage error={error} />
       <div className="grid">
-        {filtered.map(f => (
-            <div
+        {filtered.map((f) => (
+          <div
             key={f.id}
             type="button"
             onClick={() => openModal(f)}
@@ -85,16 +105,23 @@ export default function Movies() {
               cursor: 'pointer',
             }}
           >
-            <Card title={`${f.title} (${f.release_date})`} japaneseTitle={f.original_title} image={f.image}>
-              <p><strong>Director:</strong> {f.director}</p>
-              <p>{f.description.slice(0,120)}...</p>
-              {/* TODO: Add poster images (need mapping) */}
+            <Card
+              title={`${f.title} (${f.release_date})`}
+              japaneseTitle={f.original_title}
+              image={f.image}
+            >
+              <p>
+                <strong>Director:</strong> {f.director}
+              </p>
+              <p>
+                <strong>IMDb Rating:</strong> ⭐ {f.imdbRating}
+              </p>
+              <p>{f.description.slice(0, 120)}...</p>
             </Card>
           </div>
-
         ))}
       </div>
-       {isModalOpen && selectedFilm && (
+      {isModalOpen && selectedFilm && (
         <Modal open={isModalOpen} onClose={closeModal} film={selectedFilm} />
       )}
     </div>
