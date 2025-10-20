@@ -1,3 +1,22 @@
+/**
+ * MOVIES (GHIBLI) DASHBOARD TODOs
+ * -------------------------------
+ * Easy:
+ *  - [ ] Add select dropdown for director filtering instead of text filter
+ *  - [ ] Add film poster (map titles to known images or placeholder search)
+ *  - [ ] Show running time, score, producer fields
+ *  - [ ] Expand/collapse description
+ * Medium:
+ *  - [ ] Client-side pagination / virtualization for performance (future if many APIs)
+ *  - [ ] Favorites / watchlist (localStorage)
+ *  - [ ] Sort (Year asc/desc, Title A-Z, RT Score)
+ *  - [ ] Detail modal with full info & external links
+ * Advanced:
+ *  - [ ] Pre-fetch details or combine with other Studio Ghibli endpoints (people, locations)
+ *  - [ ] Add fuzzy search (title, director, description)
+ *  - [ ] Offline cache using indexedDB (e.g., idb library)
+ *  - [ ] Extract data layer + hook (useGhibliFilms)
+ */
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
