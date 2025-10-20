@@ -23,12 +23,16 @@ import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
 import HeroSection from '../components/HeroSection';
 import Cinema from '../Images/Movie.jpg';
+import Modal from '../components/Modal.jsx';
 
 export default function Movies() {
   const [films, setFilms] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFilm, setSelectedFilm] = useState(null);
+
 
   useEffect(() => { fetchFilms(); }, []);
 
@@ -43,6 +47,16 @@ export default function Movies() {
   }
 
   const filtered = films.filter(f => f.director.toLowerCase().includes(filter.toLowerCase()) || f.release_date.includes(filter));
+
+  const openModal = (film) => {
+    setSelectedFilm(film);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedFilm(null);
+  };
 
   return (
     <div>
@@ -61,13 +75,28 @@ export default function Movies() {
       <ErrorMessage error={error} />
       <div className="grid">
         {filtered.map(f => (
-          <Card key={f.id}  title={`${f.title} (${f.release_date})`} japaneseTitle={f.original_title} image={f.image}>
-            <p><strong>Director:</strong> {f.director}</p>
-            <p>{f.description.slice(0,120)}...</p>
-            {/* TODO: Add poster images (need mapping) */}
-          </Card>
+            <div
+            key={f.id}
+            type="button"
+            onClick={() => openModal(f)}
+            aria-label={`Open details for ${f.title}`}
+            style={{
+              display: 'contents',
+              cursor: 'pointer',
+            }}
+          >
+            <Card title={`${f.title} (${f.release_date})`} japaneseTitle={f.original_title} image={f.image}>
+              <p><strong>Director:</strong> {f.director}</p>
+              <p>{f.description.slice(0,120)}...</p>
+              {/* TODO: Add poster images (need mapping) */}
+            </Card>
+          </div>
+
         ))}
       </div>
+       {isModalOpen && selectedFilm && (
+        <Modal open={isModalOpen} onClose={closeModal} film={selectedFilm} />
+      )}
     </div>
   );
 }
