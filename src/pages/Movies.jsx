@@ -14,7 +14,7 @@
  * Advanced:
  *  - [ ] Pre-fetch details or combine with other Studio Ghibli endpoints (people, locations)
  *  - [ ] Add fuzzy search (title, director, description)
- *  - [ ] Offline cache using indexedDB (e.g., idb library)
+ *  - [X] Offline cache using indexedDB (e.g., idb library)
  *  - [ ] Extract data layer + hook (useGhibliFilms)
  */
 import { useEffect, useState } from 'react';
@@ -24,6 +24,7 @@ import Card from '../components/Card.jsx';
 import HeroSection from '../components/HeroSection';
 import Cinema from '../Images/Movie.jpg';
 import Modal from '../components/Modal.jsx';
+import { getCachedMovies, saveMoviesToCache } from '../utilities/db';
 
 export default function Movies() {
   const [films, setFilms] = useState([]);
@@ -32,19 +33,78 @@ export default function Movies() {
   const [filter, setFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
+  useEffect(() => {
+    const handleOffline = () => {
+      console.log('App is offline');
+      setIsOffline(true);
+    };
+    const handleOnline = () => {
+      console.log('App is online');
+      setIsOffline(false);
+    };
 
-  useEffect(() => { fetchFilms(); }, []);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
 
-  async function fetchFilms() {
-    try {
-      setLoading(true); setError(null);
-      const res = await fetch('https://ghibliapi.vercel.app/films');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
-      setFilms(json);
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
+  useEffect(() => {
+    async function loadMovies() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (isOffline) {
+          // --- OFFLINE LOGIC ---
+          const cachedFilms = await getCachedMovies();
+          if (cachedFilms.length > 0) {
+            setFilms(cachedFilms);
+          } else {
+            setError(new Error("You are offline and no cached movies are available."));
+          }
+        } else {
+          // --- ONLINE LOGIC ---
+          const res = await fetch('https://ghibliapi.vercel.app/films');
+          if (!res.ok) throw new Error('Failed to fetch from API');
+          
+          const json = await res.json();
+          setFilms(json);
+          
+          await saveMoviesToCache(json);
+        }
+      } catch (e) {
+        console.error('Error during data loading:', e);
+        
+        if (!isOffline) {
+          console.log('API failed, attempting to load from cache...');
+          try {
+            const cachedFilms = await getCachedMovies();
+            if (cachedFilms.length > 0) {
+              setFilms(cachedFilms);
+              setError(null); 
+            } else {
+              setError(new Error("API failed and no cached data is available."));
+            }
+          } catch (cacheError) {
+            console.error('Cache fallback failed:', cacheError);
+            setError(e);
+          }
+        } else {
+          setError(e);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadMovies();
+  }, [isOffline]); 
 
   const filtered = films.filter(f => f.director.toLowerCase().includes(filter.toLowerCase()) || f.release_date.includes(filter));
 
@@ -69,6 +129,19 @@ export default function Movies() {
   }
       subtitle="Dive deep into storytelling, performances, and the art of filmmaking."
     />
+      {isOffline && (
+        <div style={{
+          padding: '10px',
+          backgroundColor: '#333',
+          color: 'white',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          margin: '10px 0'
+        }}>
+          You are in offline mode.
+        </div>
+      )}
+
       <h2>Studio Ghibli Films</h2>
       <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter by director or year" />
       {loading && <Loading />}
