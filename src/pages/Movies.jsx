@@ -2,6 +2,7 @@
  * MOVIES (GHIBLI) DASHBOARD TODOs
  * -------------------------------
  * Easy:
+ *  - [x] Add IMDb Ratings using OMDb API (with caching)
  *  - [ ] Add select dropdown for director filtering instead of text filter
  *  - [ ] Add film poster (map titles to known images or placeholder search)
  *  - [ ] Show running time, score, producer fields
@@ -17,6 +18,7 @@
  *  - [ ] Offline cache using indexedDB (e.g., idb library)
  *  - [ ] Extract data layer + hook (useGhibliFilms)
  */
+
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
@@ -33,39 +35,56 @@ export default function Movies() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState(null);
 
-  // 🗝️ Replace with your own OMDb API key
   const OMDB_API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+  const isLocal = window.location.hostname === 'localhost';
 
+  // 🧠 Fetch and cache IMDb rating (refresh automatically in local)
+  async function fetchIMDbRating(title) {
+    const cacheKey = `imdb_${title}`;
+    const cached = localStorage.getItem(cacheKey);
 
-  useEffect(() => {
-    fetchFilms();
-  }, []);
+    // If not local and cached data exists, use it
+    if (!isLocal && cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // continue to fetch
+      }
+    }
 
+    // Otherwise, fetch fresh data
+    try {
+      const res = await fetch(
+        `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${OMDB_API_KEY}`
+      );
+      const data = await res.json();
+
+      if (data && data.imdbRating) {
+        const ratingObj = { imdbRating: data.imdbRating };
+        if (!isLocal) localStorage.setItem(cacheKey, JSON.stringify(ratingObj));
+        return ratingObj;
+      }
+    } catch (err) {
+      console.error('Failed to fetch IMDb rating for', title, err);
+    }
+
+    return { imdbRating: 'N/A' };
+  }
+
+  // 🎬 Fetch Ghibli films and attach IMDb ratings
   async function fetchFilms() {
     try {
       setLoading(true);
       setError(null);
 
-      // Step 1: Fetch Ghibli films
       const res = await fetch('https://ghibliapi.vercel.app/films');
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error('Failed to fetch films');
       const filmsData = await res.json();
 
-      // Step 2: Fetch IMDb rating for each film
       const filmsWithRatings = await Promise.all(
         filmsData.map(async (film) => {
-          try {
-            const omdbRes = await fetch(
-              `https://www.omdbapi.com/?t=${encodeURIComponent(film.title)}&apikey=${OMDB_API_KEY}`
-            );
-            const omdbData = await omdbRes.json();
-            return {
-              ...film,
-              imdbRating: omdbData.imdbRating || 'N/A', // ⭐ IMDb rating section
-            };
-          } catch {
-            return { ...film, imdbRating: 'N/A' };
-          }
+          const imdb = await fetchIMDbRating(film.title);
+          return { ...film, ...imdb };
         })
       );
 
@@ -77,12 +96,18 @@ export default function Movies() {
     }
   }
 
+  useEffect(() => {
+    fetchFilms();
+  }, []);
+
+  // 🧩 Filters
   const filtered = films.filter(
     (f) =>
       f.director.toLowerCase().includes(filter.toLowerCase()) ||
       f.release_date.includes(filter)
   );
 
+  // 🎞️ Modal Handlers
   const openModal = (film) => {
     setSelectedFilm(film);
     setIsModalOpen(true);
@@ -105,13 +130,16 @@ export default function Movies() {
         subtitle="Dive deep into storytelling, performances, and the art of filmmaking."
       />
       <h2>Studio Ghibli Films</h2>
+
       <input
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Filter by director or year"
       />
+
       {loading && <Loading />}
       <ErrorMessage error={error} />
+
       <div className="grid">
         {filtered.map((f) => (
           <div
@@ -119,10 +147,7 @@ export default function Movies() {
             type="button"
             onClick={() => openModal(f)}
             aria-label={`Open details for ${f.title}`}
-            style={{
-              display: 'contents',
-              cursor: 'pointer',
-            }}
+            style={{ display: 'contents', cursor: 'pointer' }}
           >
             <Card
               title={`${f.title} (${f.release_date})`}
@@ -133,13 +158,23 @@ export default function Movies() {
                 <strong>Director:</strong> {f.director}
               </p>
               <p>
-                <strong>IMDb Rating:</strong> ⭐ {f.imdbRating}
+                <span
+                  style={{
+                    fontStyle: 'italic',
+                    fontWeight: 500,
+                    color: 'white',
+                  }}
+                >
+                  IMDb Rating:
+                </span>{' '}
+                ⭐ {f.imdbRating || 'N/A'}
               </p>
               <p>{f.description.slice(0, 120)}...</p>
             </Card>
           </div>
         ))}
       </div>
+
       {isModalOpen && selectedFilm && (
         <Modal open={isModalOpen} onClose={closeModal} film={selectedFilm} />
       )}
