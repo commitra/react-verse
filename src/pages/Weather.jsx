@@ -83,8 +83,8 @@ export default function Weather() {
       const data = await res.json();
       if (data && data.length > 0 && data[0].name) {
         setCity(data[0].name);
-        setError(null);
         setIsLocAllowed(true);
+        setError(null);
         localStorage.setItem("userLocation", JSON.stringify(data[0].name));
       } else {
         setCity("London");
@@ -92,30 +92,33 @@ export default function Weather() {
         setIsLocAllowed(false);
       }
     } catch (err) {
-      console.log(err);
       setCity("London");
-      setError(err.message);
+      setError("Failed to fetch city from coordinates.");
       setIsLocAllowed(false);
     }
   }
 
   function requestLocation() {
     setIsRequestingLoc(true);
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      setIsLocAllowed(false);
+      setCity("London");
+      setIsRequestingLoc(false);
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
-      async function onSuccess(position) {
+      async (position) => {
         await getCurrentCity(
           position.coords.latitude,
           position.coords.longitude
         );
         setIsRequestingLoc(false);
       },
-
-      function onError(err) {
-        console.log("Error", err);
+      (error) => {
+        setError("Location access denied or failed.");
         setIsLocAllowed(false);
-        setError(
-          "Location is blocked. Please enable location in your browser settings to detect automatically."
-        );
         setCity("London");
         setIsRequestingLoc(false);
       }
