@@ -33,7 +33,9 @@ const dashboards = [
   { path: '/jokes-quotes', title: 'Jokes & Quotes', desc: 'Random jokes & inspiration' },
   { path: '/pets', title: 'Pets Images', desc: 'Random dog & cat images' },
   { path: '/covid', title: 'COVID-19 Stats', desc: 'Global & country data' },
+  { path: '/pokedex', title: 'Pokédex', desc: 'Explore Pokémon species' },
    { path: '/contributors', title: 'Contributor Wall', desc: 'Our Contributors' },
+   
 ];
 
 export default function Home() {
