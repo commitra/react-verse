@@ -21,6 +21,8 @@ import { useEffect, useState } from 'react';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
+import HeroSection from '../components/HeroSection';
+import Flowers from '../Images/Flowers.jpg';
 
 export default function JokesQuotes() {
   const [joke, setJoke] = useState(null);
@@ -40,15 +42,18 @@ export default function JokesQuotes() {
       setJoke(await res.json());
     } catch (e) { setError(e); } finally { setLoading(false); }
   }
-
+  
   async function fetchQuote() {
-    try {
-      setLoading(true); setError(null);
-      const res = await fetch('https://api.quotable.io/random');
-      if (!res.ok) throw new Error('Failed to fetch');
-      setQuote(await res.json());
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+  try {
+    setLoading(true); setError(null);
+    const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://zenquotes.io/api/random'));
+    if (!res.ok) throw new Error('Failed to fetch');
+    const data = await res.json();
+    const quotes = JSON.parse(data.contents);
+    setQuote({content: quotes[0].q, author: quotes[0].a});
+  } catch (e) { setError(e); } finally { setLoading(false); }
+}
+
 
   async function searchQuotes() {
     if (!search) return;
@@ -63,6 +68,16 @@ export default function JokesQuotes() {
 
   return (
     <div>
+      <HeroSection
+      image={Flowers}
+       title={
+    <>
+      Quote It, Joke It, <span style={{ color: 'skyblue' }}>Live It</span>
+    </>
+  }
+
+      subtitle="Whether you need a laugh or a little life wisdom, we’ve got a line for that."
+    />
       <h2>Jokes & Quotes</h2>
       <div className="flex gap">
         <button onClick={fetchJoke}>New Joke</button>

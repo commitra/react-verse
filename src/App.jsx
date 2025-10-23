@@ -41,31 +41,47 @@ import JokesQuotes from './pages/JokesQuotes.jsx';
 import Pets from './pages/Pets.jsx';
 import Covid from './pages/Covid.jsx';
 import Navbar from './components/Navbar.jsx';
-import ThemeSwitcher from './components/ThemeSwitcher.jsx';
+import ContributorsWall from './pages/Contributors.jsx'
+import Pokedex from './pages/Pokedex.jsx';
 
 // TODO: Extract theme state into context (see todo 5).
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function App() {
-  const [theme, setTheme] = useState('light');
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+  
+  const toggleTheme = () => {
+    setTheme(t => {
+      const newTheme = t === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+      return newTheme;
+    });
+  };
+  
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <div className={`app theme-${theme}`}>      
-      <Navbar />
-      <ThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="container">
         <Routes>
+          {/* Different Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/weather" element={<Weather />} />
             <Route path="/crypto" element={<Crypto />} />
-            <Route path="/space" element={<Space />} />
+            <Route path="/space" element={<Space theme={theme} />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/trivia" element={<Trivia />} />
             <Route path="/jokes-quotes" element={<JokesQuotes />} />
             <Route path="/pets" element={<Pets />} />
-            <Route path="/covid" element={<Covid />} />
+            <Route path="/covid" element={<Covid />} />  
+            <Route path="/contributors" element={<ContributorsWall />} />    
+            <Route path="/pokedex" element={<Pokedex />} />  
         </Routes>
       </main>
     </div>

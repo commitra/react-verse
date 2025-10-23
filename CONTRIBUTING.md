@@ -24,6 +24,8 @@ src/
 
 If you’re unsure where to start, open a discussion or comment on an issue to be assigned.
 
+> Pro Tip : If you raise a valid issue - you WILL BE assigned that
+
 ## Contribution Ideas
 General:
 - Add accessibility (aria labels, focus states, skip links)
