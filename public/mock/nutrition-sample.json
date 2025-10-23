@@ -1,0 +1,14 @@
+{
+  "uri": "http://example",
+  "calories": 520,
+  "totalWeight": 450,
+  "totalNutrients": {
+    "PROCNT": { "label": "Protein", "quantity": 32.4, "unit": "g" },
+    "CHOCDF": { "label": "Carbs", "quantity": 58.2, "unit": "g" },
+    "FAT": { "label": "Fat", "quantity": 18.1, "unit": "g" },
+    "SUGAR": { "label": "Sugars", "quantity": 12.7, "unit": "g" },
+    "NA": { "label": "Sodium", "quantity": 940, "unit": "mg" },
+    "FIBTG": { "label": "Fiber", "quantity": 7.6, "unit": "g" }
+  }
+}
+

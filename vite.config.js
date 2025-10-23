@@ -9,6 +9,11 @@ export default defineConfig({
         target: 'http://api.open-notify.org',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/edamam': {
+        target: 'https://api.edamam.com',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/edamam/, '')
       }
     }
   }
