@@ -92,6 +92,12 @@ useEffect(() => {
   const listBg = isDark ? '#334155' : '#f1f5f9';
   const borderColor = isDark ? '#334155' : '#e2e8f0';
 
+  const groupedCrew = crew.reduce((acc, p) => {
+  if (!acc[p.craft]) acc[p.craft] = [];
+  acc[p.craft].push(p);
+  return acc;
+}, {});
+
   return (
     <>
     <HeroSection
@@ -205,47 +211,23 @@ useEffect(() => {
             border: `1px solid ${borderColor}`,
           }}
         >
-          <ul style={{ 
-            paddingLeft: '0', 
-            listStyleType: 'none', 
-            margin: '0',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem'
-          }}>
-            {crew.map((p) => (
-              <li
-                key={p.name}
-                style={{
-                  backgroundColor: listBg,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  transition: 'all 0.3s ease',
-                  border: `1px solid ${borderColor}`,
-                }}
-              >
-                <span style={{ 
-                  fontWeight: '500', 
-                  color: textColor 
-                }}>
-                  {p.name}
-                </span>
-                <span style={{ 
-                  fontSize: '0.9rem', 
-                  color: subText,
-                  backgroundColor: isDark ? '#475569' : '#e2e8f0',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '6px',
-                  fontWeight: '500'
-                }}>
-                  🚀 {p.craft}
-                </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+           {Object.entries(groupedCrew).map(([craft, members]) => (
+            <div key={craft} style={{ border: `1px solid ${borderColor}`, borderRadius: '8px', padding: '1rem', backgroundColor: listBg }}>
+               <h3 style={{ fontWeight: '600', marginBottom: '0.5rem', color: accent }}>
+              🚀 {craft} ({members.length})
+               </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {members.map((p) => (
+              <li key={p.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0.75rem', borderRadius: '6px', backgroundColor: isDark ? '#475569' : '#e2e8f0' }}>
+              <span style={{ fontWeight: '500', color: textColor }}>{p.name}</span>
               </li>
             ))}
-          </ul>
+            </ul>
+            </div>
+            ))}
+          </div>
+
         </Card>
       </div>
 
