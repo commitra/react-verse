@@ -408,15 +408,24 @@ export default function Pokedex() {
               fontWeight: 600,
               fontSize: '0.9rem',
               backgroundColor: 'rgba(255,255,255,0.9)',
+              color: '#333',
               boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '16px',
+              paddingRight: '32px'
             }}
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
-            <option value="">All Types</option>
+            <option value="" style={{ backgroundColor: 'white', color: '#333' }}>All Types</option>
             {availableTypes.map(type => (
-              <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+              <option key={type} value={type} style={{ backgroundColor: 'white', color: '#333' }}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </option>
             ))}
           </select>
           
@@ -472,12 +481,14 @@ export default function Pokedex() {
                   steel: ["#d7e0e6", "#9fb0bd"],
                   normal: ["#f5f5f5", "#dcdcdc"]
                 };
-                const colors = typeColors[primaryType] || typeColors.normal;
-                const cardStyle = {
-                  ...cardBaseStyle,
-                  background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
-                  color: "#111",
-                };
+                 const colors = typeColors[primaryType] || typeColors.normal;
+                 // Determine text color based on background brightness
+                 const isLightBackground = primaryType === 'normal' || primaryType === 'fairy' || primaryType === 'ice';
+                 const cardStyle = {
+                   ...cardBaseStyle,
+                   background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
+                   color: isLightBackground ? "#333" : "#fff",
+                 };
 
                 return (
                   <div
@@ -527,17 +538,21 @@ export default function Pokedex() {
                         }}
                       />
 
-                      <div className="card-name" style={{ color: "#fff" }}>
-                        {p.name}
-                      </div>
+                       <div className="card-name" style={{ color: isLightBackground ? "#333" : "#fff" }}>
+                         {p.name}
+                       </div>
 
-                      <div className="types" aria-hidden="false">
-                        {p.types.map((t) => (
-                          <div key={t.type.name} className="type-pill">
-                            {t.type.name}
-                          </div>
-                        ))}
-                      </div>
+                       <div className="types" aria-hidden="false">
+                         {p.types.map((t) => (
+                           <div 
+                             key={t.type.name} 
+                             className="type-pill"
+                             style={{ color: isLightBackground ? "#333" : "#fff" }}
+                           >
+                             {t.type.name}
+                           </div>
+                         ))}
+                       </div>
 
                       <img
                         src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
