@@ -10,17 +10,18 @@
   --danger: #dc2626;
   --radius: 8px;
   --transition: 0.25s ease;
+  --card-hover: rgb(0, 143, 165); /* light-mode card h3 hover color */
 }
 
 .theme-dark,
-[data-theme="dark"],
-.theme-dark :root {
+[data-theme="dark"] {
   --bg: #0f172a;
   --bg-alt: #1e293b;
   --text: #f1f5f9;
   --border: #334155;
   --primary: #3b82f6;
   --danger: #f87171;
+  --card-hover: #00d9ff; /* dark-mode card h3 hover color */
 }
 
 body,
@@ -140,7 +141,7 @@ a:hover {
 
 .navbar a {
   text-decoration: none;
-  color: #1a5c66;
+  color: var(--text);
   font-weight: 700;
   padding: 0.5rem;
   border-radius: 4px;
@@ -150,7 +151,7 @@ a:hover {
 }
 
 .navbar a:hover {
-  background: rgba(0, 217, 255, 0.1);
+  background: rgba(0, 217, 255, 0.08);
   transform: translateY(-2px);
 }
 
@@ -260,7 +261,7 @@ a:hover {
 /* Layout */
 .grid {
   display: grid;
-  gap: 1.25rem; /* MODIFIED: Increased spacing */
+  gap: 1.25rem; /* increased spacing */
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   margin-top: 1rem;
 }
@@ -288,45 +289,45 @@ a:hover {
   background: var(--bg-alt);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.25rem; /* MODIFIED: Increased padding */
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-/* NEW: Style for card description text */
+/* Card description text (theme-aware) */
 .card p {
   font-size: 0.9rem;
-  color: #cbd5e1; /* Assumes dark theme, adjust as needed */
+  color: var(--text);
+  opacity: 0.9;
   line-height: 1.5;
   margin: 0 0 1rem 0;
 }
 
 .home-page .card {
-  background: rgba(26, 92, 102, 0.2);
-  border: 2px solid rgba(0, 217, 255, 0.5);
-  /* MODIFIED: Added transitions for hover */
+  background: rgba(26, 92, 102, 0.08);
+  border: 2px solid rgba(0, 217, 255, 0.12);
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   will-change: transform;
 }
 
-/* MODIFIED: Enhanced hover effect */
 .home-page .card:hover {
   transform: translateY(-6px);
   border-color: rgba(0, 217, 255, 0.9);
-  box-shadow: 0 10px 25px rgba(0, 217, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 217, 255, 0.06);
 }
 
 .card h3 {
   margin: 0 0 0.25rem;
   font-size: 1rem;
-  transition: transform 1.5s ease;
+  transition: transform 1.5s ease, color 0.25s ease;
 }
 
+/* theme-aware hover color for card titles */
 .home-page .card:hover h3 {
   transform: translateY(-7px);
-  color: #00d9ff; /* MODIFIED: Brighter color */
+  color: var(--card-hover);
 }
 
 .card-footer {
@@ -344,17 +345,16 @@ a:hover {
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
-  transition: all 0.3s ease; /* MODIFIED: Changed to 'all' */
+  transition: all 0.3s ease;
 }
 
 .card-link-button:hover {
-  background: linear-gradient(45deg, rgb(10, 176, 255), rgb(10, 104, 115)); /* MODIFIED: Brighter gradient */
+  background: linear-gradient(45deg, rgb(10, 176, 255), rgb(10, 104, 115));
   text-decoration: none;
-  transform: scale(1.05); /* MODIFIED: Added pop */
-  box-shadow: 0 4px 15px rgba(0, 166, 255, 0.25); /* MODIFIED: Added glow */
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 166, 255, 0.12);
 }
 
-/* NEW: Added active state for click */
 .card-link-button:active {
   transform: scale(0.98);
   box-shadow: none;
@@ -470,7 +470,6 @@ blockquote {
   0% {
     background-color: hsl(200, 20%, 70%);
   }
-
   100% {
     background-color: hsl(180, 2%, 88%);
   }
@@ -553,7 +552,6 @@ blockquote {
     transform: scale(1);
     opacity: 0.98;
   }
-
   50% {
     transform: scale(1.05);
     opacity: 1;
@@ -565,7 +563,6 @@ blockquote {
   100% {
     transform: translateY(0);
   }
-
   50% {
     transform: translateY(-6px);
   }
@@ -589,7 +586,6 @@ blockquote {
   from {
     transform: translateX(0);
   }
-
   to {
     transform: translateX(18vw);
   }
@@ -636,7 +632,6 @@ blockquote {
   0% {
     transform: translateY(-10vh) translateX(0);
   }
-
   100% {
     transform: translateY(110vh) translateX(var(--drift));
     opacity: 0.7;
@@ -668,11 +663,9 @@ blockquote {
   0% {
     transform: translateX(-5vw);
   }
-
   50% {
     transform: translateX(6vw);
   }
-
   100% {
     transform: translateX(-5vw);
   }
@@ -692,7 +685,6 @@ blockquote {
   100% {
     opacity: 0;
   }
-
   5%,
   8% {
     opacity: 1;
@@ -737,8 +729,7 @@ blockquote {
   }
 }
 
-/**Pagination **/
-
+/* Pagination */
 .pagination {
   width: 100%;
   display: flex;

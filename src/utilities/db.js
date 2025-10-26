@@ -1,5 +1,4 @@
 
-
 const DB_NAME = 'movie-db';
 const STORE_NAME = 'movies';
 const DB_VERSION = 1;
