@@ -1,26 +1,98 @@
-/* Dashboard-style header to match dark theme */
+/* 🌌 Enhanced Dashboard Header (Dark Theme) */
 .dashboard-header {
-  background-color: #0b3c5f;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem 1rem;
+  background: linear-gradient(145deg, #0b3c5f 0%, #072b44 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3rem 1rem 2.5rem;
   text-align: center;
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.header-content {
-  max-width: 900px;
-  margin: 0 auto;
+/* ✨ Subtle animated gradient sweep */
+.dashboard-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 20%, rgba(0, 217, 255, 0.15), transparent 60%);
+  animation: sweep 10s ease-in-out infinite alternate;
+  z-index: 0;
 }
 
+/* 🖋️ Typewriter Title */
 .dashboard-title {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #00d9ff, #1a5c66);
+  display: inline-block;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(90deg, #4ec9df, #24b8c9, #1a5c66);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #f9fdfd00;
+  animation:
+    typing 3.5s steps(18) 0.5s 1 normal both,
+    blink 0.75s step-end infinite,
+    fadeInUp 1s ease both;
 }
 
+/* 💬 Subtitle */
 .dashboard-subtitle {
-  font-size: 1.1rem;
-  color: #c8d6e5;
+  font-size: 1.2rem;
+  color: #b8cce3;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+  opacity: 0.9;
+  animation: fadeInUp 1.5s ease both;
+}
+
+/* 🌈 Keyframes */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 15ch; /* Adjust depending on your title length */
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+@keyframes sweep {
+  from {
+    transform: translateX(-10%);
+  }
+  to {
+    transform: translateX(10%);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🧱 Container */
+.header-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
 }

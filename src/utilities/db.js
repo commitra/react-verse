@@ -1,4 +1,3 @@
-import { openDB } from 'idb';
 
 const DB_NAME = 'movie-db';
 const STORE_NAME = 'movies';
