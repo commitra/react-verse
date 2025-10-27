@@ -54,6 +54,35 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
+## 🍽️ Nutrition (Recipes) — optional
+
+Estimate nutrition for a recipe's ingredients. Works with RapidAPI or native Edamam; falls back to a local mock if no keys are set.
+
+Setup
+1. Create `.env` from the example:
+   - `cp env.example .env`
+2. Choose ONE provider:
+   - RapidAPI (recommended for quick start):
+     - `VITE_RAPIDAPI_KEY=your_rapidapi_key`
+     - `VITE_RAPIDAPI_HOST=<copy the exact X-RapidAPI-Host from RapidAPI>`
+       (e.g. `edamam-nutrition-analysis.p.rapidapi.com` — value may vary)
+   - Native Edamam:
+     - `VITE_EDAMAM_APP_ID=your_edamam_app_id`
+     - `VITE_EDAMAM_APP_KEY=your_edamam_app_key`
+3. Restart dev server.
+
+Use
+- Open Recipes → click “More Nutrition Info”.
+- Shows: Calories (kcal), Carbs (g), Protein (g), Fat (g), Fiber (g), Sugar (g), Sodium (mg).
+- If no keys are set, the button shows “Demo Nutrition (mock)”.
+
+Notes & troubleshooting
+- Do not commit real keys. `.env` is local only.
+- RapidAPI: ensure Host matches your snippet exactly; we support common endpoints.
+- If you see 401/404, double‑check Host/key and quota, then restart the dev server.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions of all levels — from design tweaks to feature enhancements!

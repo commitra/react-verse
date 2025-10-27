@@ -18,6 +18,7 @@
  *  - [ ] Extract service + hook (useMealsSearch)
  */
 import { useEffect, useState } from 'react';
+import { estimateNutritionForIngredients, buildIngredientsFromMealDetail } from '../services/nutrition.js';
 import Loading from '../components/Loading.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import Card from '../components/Card.jsx';
@@ -30,6 +31,13 @@ export default function Recipes() {
   const [randomMeal, setRandomMeal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [open, setOpen] = useState({});
+  const [nutrition, setNutrition] = useState({});
+  const [nLoading, setNLoading] = useState({});
+  const [nError, setNError] = useState({});
+  const hasRapid = Boolean(import.meta.env.VITE_RAPIDAPI_KEY && import.meta.env.VITE_RAPIDAPI_HOST);
+  const hasEdamam = Boolean(import.meta.env.VITE_EDAMAM_APP_ID && import.meta.env.VITE_EDAMAM_APP_KEY);
+  const hasProvider = hasRapid || hasEdamam;
 
   useEffect(() => { search(); }, []);
 
@@ -51,6 +59,34 @@ export default function Recipes() {
       const json = await res.json();
       setRandomMeal(json.meals?.[0] || null);
     } catch (e) { setError(e); } finally { setLoading(false); }
+  }
+
+  async function fetchMealDetail(id) {
+    const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+    if (!res.ok) throw new Error('Failed to fetch');
+    const json = await res.json();
+    return json.meals?.[0] || null;
+  }
+
+  async function toggleNutrition(mealId) {
+    setOpen((o) => ({ ...o, [mealId]: !o[mealId] }));
+    const isOpening = !open[mealId];
+    if (!isOpening) return;
+    if (nutrition[mealId] || nLoading[mealId]) return;
+    setNError((e) => ({ ...e, [mealId]: null }));
+    setNLoading((l) => ({ ...l, [mealId]: true }));
+    try {
+      const detail = await fetchMealDetail(mealId);
+      if (!detail) throw new Error('Meal not found');
+      const ingr = buildIngredientsFromMealDetail(detail);
+      if (ingr.length === 0) throw new Error('No ingredients found');
+      const est = await estimateNutritionForIngredients(ingr);
+      setNutrition((n) => ({ ...n, [mealId]: est }));
+    } catch (e) {
+      setNError((er) => ({ ...er, [mealId]: e }));
+    } finally {
+      setNLoading((l) => ({ ...l, [mealId]: false }));
+    }
   }
 
   return (
@@ -79,11 +115,39 @@ export default function Recipes() {
         </Card>
       )}
       <div className="grid">
-        {meals.map(m => (
-          <Card key={m.idMeal} title={m.strMeal}>
-            <img src={m.strMealThumb} alt="" width="100" />
-          </Card>
-        ))}
+        {meals.map(m => {
+          const isOpen = !!open[m.idMeal];
+          const data = nutrition[m.idMeal];
+          const isNL = !!nLoading[m.idMeal];
+          const err = nError[m.idMeal];
+          return (
+            <Card key={m.idMeal} title={m.strMeal}>
+              <img src={m.strMealThumb} alt="" width="100" />
+              <button type="button" onClick={() => toggleNutrition(m.idMeal)}>
+                {isOpen ? 'Hide Nutrition' : (hasProvider ? 'More Nutrition Info' : 'Demo Nutrition (mock)')}
+              </button>
+              {isOpen && (
+                <div style={{ marginTop: '0.5rem' }}>
+                  {isNL && <Loading />}
+                  <ErrorMessage error={err} />
+                  {data && !isNL && !err && (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        <tr><td>Calories (kcal)</td><td style={{ textAlign: 'right' }}>{data.calories?.toLocaleString?.() || 0}</td></tr>
+                        <tr><td>Carbs (g)</td><td style={{ textAlign: 'right' }}>{data.carbsG}</td></tr>
+                        <tr><td>Protein (g)</td><td style={{ textAlign: 'right' }}>{data.proteinG}</td></tr>
+                        <tr><td>Fat (g)</td><td style={{ textAlign: 'right' }}>{data.fatG}</td></tr>
+                        <tr><td>Fiber (g)</td><td style={{ textAlign: 'right' }}>{data.fiberG}</td></tr>
+                        <tr><td>Sugar (g)</td><td style={{ textAlign: 'right' }}>{data.sugarG}</td></tr>
+                        <tr><td>Sodium (mg)</td><td style={{ textAlign: 'right' }}>{data.sodiumMg}</td></tr>
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
