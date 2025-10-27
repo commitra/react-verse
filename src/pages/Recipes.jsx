@@ -17,74 +17,143 @@
  *  - [ ] Offline caching of last search
  *  - [ ] Extract service + hook (useMealsSearch)
  */
-import { useEffect, useState } from 'react';
-import Loading from '../components/Loading.jsx';
-import ErrorMessage from '../components/ErrorMessage.jsx';
-import Card from '../components/Card.jsx';
-import HeroSection from '../components/HeroSection';
-import Food from '../Images/Food.jpg';
+import React, { useState } from "react";
 
-export default function Recipes() {
-  const [ingredient, setIngredient] = useState('chicken');
-  const [meals, setMeals] = useState([]);
-  const [randomMeal, setRandomMeal] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  useEffect(() => { search(); }, []);
 
-  async function search() {
-    try {
-      setLoading(true); setError(null);
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${encodeURIComponent(ingredient)}`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
-      setMeals(json.meals || []);
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+export default function App() {
+  const [query, setQuery] = useState("");
+  const [loadedImages, setLoadedImages] = useState({});
+  const [isDark, setIsDark] = useState(false);
 
-  async function random() {
-    try {
-      setLoading(true); setError(null);
-      const res = await fetch('https://www.themealdb.com/api/json/v1/1/random.php');
-      if (!res.ok) throw new Error('Failed to fetch');
-      const json = await res.json();
-      setRandomMeal(json.meals?.[0] || null);
-    } catch (e) { setError(e); } finally { setLoading(false); }
-  }
+  const dishes = [
+    {
+      id: 1,
+      name: "Cheesy Burger",
+      category: "Fast Food",
+      area: "American",
+      desc: "Juicy, cheesy and delicious.",
+      img: "/src/images/burger.jpg",
+    },
+    {
+      id: 2,
+      name: "Creamy Pasta",
+      category: "Main Course",
+      area: "Italian",
+      desc: "Rich and flavorful with herbs.",
+      img: "/src/images/pasta.jpg",
+    },
+    {
+      id: 3,
+      name: "Fresh Salad",
+      category: "Healthy",
+      area: "Mediterranean",
+      desc: "Crisp greens with a tangy dressing.",
+      img: "/src/images/salad.jpeg",
+    },
+  ];
+
+  const randomRecipe = [{
+    id: 1,
+    name: "Chicken Tikka Masala",
+    category: "Main Course",
+    area: "Indian",
+    desc: "Aromatic curry with tender chicken pieces.",
+    img: "/src/images/chicken.jpg",
+  },
+  {
+    id: 2,
+    name: "paneer Briyani",
+    category: "Main Course",
+    area: "Indian",
+    desc: "Paneer biryani is a fragrant dish made with spiced paneer and basmati rice..",
+    img: "/src/images/paneerBriyani.jpg",
+  },
+  ];
+
+  
+  const filteredDishes = dishes.filter((dish) =>
+    dish.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const filterRandomRecipe = randomRecipe.filter((randomDish) =>
+    randomDish.name.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
-    <div>
-      <HeroSection
-      image={Food}
-        title={
-    <>
-      Delicious Made <span style={{ color: 'yellow' }}>Simple</span>
-    </>
-  }
-      subtitle="Wholesome recipes with heart, made easy for every home cook"
-    />
-      <h2>Recipe Finder</h2>
-      <form onSubmit={e => { e.preventDefault(); search(); }} className="inline-form">
-        <input value={ingredient} onChange={e => setIngredient(e.target.value)} placeholder="Ingredient" />
-        <button type="submit">Search</button>
-        <button type="button" onClick={random}>Random</button>
-      </form>
-      {loading && <Loading />}
-      <ErrorMessage error={error} />
-      {randomMeal && (
-        <Card title={`Random: ${randomMeal.strMeal}`} footer={<a href={randomMeal.strSource} target="_blank" rel="noreferrer">Source</a>}>
-          <img src={randomMeal.strMealThumb} alt="" width="100" />
-          {/* TODO: Show instructions modal */}
-        </Card>
-      )}
-      <div className="grid">
-        {meals.map(m => (
-          <Card key={m.idMeal} title={m.strMeal}>
-            <img src={m.strMealThumb} alt="" width="100" />
-          </Card>
-        ))}
-      </div>
+    <div className={`app ${isDark ? "dark" : "light"}`}>
+      {/* Header */}
+      <header>
+        <h1>🍴 Recipes Dashboard</h1>
+      </header>
+
+      {/* Search Section */}
+      <section className="search-section">
+        <h2>Find your next favorite recipe</h2>
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="What are you hungry for?"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="search-input"
+          />
+          {query && (
+            <button onClick={() => setQuery("")} className="clear-btn">
+              ✕
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* Random Recipe */}
+      <section className="random-recipe">
+        <div className="cards-grid">
+          {filterRandomRecipe.map((randomDish) => (
+            <div className="card" key={randomDish.id}>
+              <img src={randomDish.img} alt={randomDish.name} className="random-recipe-img" />
+              <div className="random-recipe-info">
+                <h3>{randomDish.name}</h3>
+                <p>{randomDish.desc}</p>
+                <p className="muted">
+                  {randomDish.category} • {randomDish.area}
+                </p>
+                <button className="btn btn-primary">View Recipe</button>
+              </div>
+            </div>
+          ))}
+
+        </div>
+      </section>
+
+
+      {/* Cards */}
+      <section className="cards-section">
+        <h3 className="cards-title">Popular Recipes</h3>
+        <div className="cards-grid">
+          {filteredDishes.map((dish) => (
+            <div className="card" key={dish.id}>
+              {!loadedImages[dish.id] && <div className="skeleton" />}
+              <img
+                src={dish.img}
+                alt={dish.name}
+                style={{ display: loadedImages[dish.id] ? "block" : "none" }}
+                onLoad={() =>
+                  setLoadedImages((prev) => ({ ...prev, [dish.id]: true }))
+                }
+              />
+              <h4>{dish.name}</h4>
+              <p className="muted">
+                {dish.category} • {dish.area}
+              </p>
+              <p>{dish.desc}</p>
+              <button className="btn btn-primary">View Recipe</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer>© {new Date().getFullYear()} Recipes Dashboard</footer>
     </div>
   );
 }
