@@ -7,7 +7,25 @@ export default function Pokedex() {
   const [loadingNames, setLoadingNames] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [allNames, setAllNames] = useState([]);
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [selectedType, setSelectedType] = useState("");
+  const [favorites, setFavorites] = useState(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [pokemonDetails, setPokemonDetails] = useState({});
   const debounceRef = useRef(null);
+
+  // Load favorites from localStorage on mount
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('pokemon-favorites');
+    if (savedFavorites) {
+      setFavorites(new Set(JSON.parse(savedFavorites)));
+    }
+  }, []);
+
+  // Save favorites to localStorage whenever favorites change
+  useEffect(() => {
+    localStorage.setItem('pokemon-favorites', JSON.stringify([...favorites]));
+  }, [favorites]);
 
   // On mount: fetch all names (lightweight) and then load initial details for first page
   useEffect(() => {
@@ -38,6 +56,39 @@ export default function Pokedex() {
       mounted = false;
     };
   }, []);
+
+  // Fetch detailed Pokemon information including moves
+  async function fetchPokemonDetails(pokemonName) {
+    if (pokemonDetails[pokemonName]) return pokemonDetails[pokemonName];
+    
+    try {
+      const [pokemonRes, speciesRes] = await Promise.all([
+        fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`),
+        fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonName}`)
+      ]);
+      
+      if (!pokemonRes.ok || !speciesRes.ok) return null;
+      
+      const [pokemonData, speciesData] = await Promise.all([
+        pokemonRes.json(),
+        speciesRes.json()
+      ]);
+      
+      const details = {
+        ...pokemonData,
+        species: speciesData,
+        moves: pokemonData.moves?.slice(0, 10) || [], // Get first 10 moves
+        abilities: pokemonData.abilities || [],
+        stats: pokemonData.stats || []
+      };
+      
+      setPokemonDetails(prev => ({ ...prev, [pokemonName]: details }));
+      return details;
+    } catch (error) {
+      console.error('Error fetching Pokemon details:', error);
+      return null;
+    }
+  }
 
   // Fetch details helper (accepts array of names)
   async function fetchDetailsForNames(names) {
@@ -81,15 +132,62 @@ export default function Pokedex() {
   // Build a map for quick lookup
   const pokemonByName = useMemo(() => new Map(pokemon.map((p) => [p.name, p])), [pokemon]);
 
-  // Determine the list of names to display based on search; cap results to 60
+  // Get all unique types from loaded Pokemon
+  const availableTypes = useMemo(() => {
+    const types = new Set();
+    pokemon.forEach(p => {
+      p.types?.forEach(t => types.add(t.type.name));
+    });
+    return Array.from(types).sort();
+  }, [pokemon]);
+
+  // Determine the list of names to display based on search, type filter, and favorites
   const matchedNames = useMemo(() => {
+    let filtered = allNames;
+    
+    // Apply search filter
     const q = search.trim().toLowerCase();
-    if (!q) return allNames.slice(0, 60);
-    return allNames.filter((n) => n.includes(q)).slice(0, 60);
-  }, [search, allNames]);
+    if (q) {
+      filtered = filtered.filter((n) => n.includes(q));
+    }
+    
+    // Apply type filter
+    if (selectedType) {
+      filtered = filtered.filter(name => {
+        const pokemonData = pokemonByName.get(name);
+        return pokemonData?.types?.some(t => t.type.name === selectedType);
+      });
+    }
+    
+    // Apply favorites filter
+    if (showFavoritesOnly) {
+      filtered = filtered.filter(name => favorites.has(name));
+    }
+    
+    return filtered.slice(0, 60);
+  }, [search, allNames, selectedType, showFavoritesOnly, favorites, pokemonByName]);
 
   // Array of pokemon details to render in the matched order
   const filtered = matchedNames.map((n) => pokemonByName.get(n)).filter(Boolean);
+
+  // Handle Pokemon selection for modal
+  const handlePokemonClick = async (pokemon) => {
+    setSelectedPokemon(pokemon);
+    await fetchPokemonDetails(pokemon.name);
+  };
+
+  // Handle favorite toggle
+  const toggleFavorite = (pokemonName) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(pokemonName)) {
+        newFavorites.delete(pokemonName);
+      } else {
+        newFavorites.add(pokemonName);
+      }
+      return newFavorites;
+    });
+  };
 
   // Debounced effect: when `search` changes, fetch details for the top matches
   useEffect(() => {
@@ -292,12 +390,65 @@ export default function Pokedex() {
 
       <h1 style={titleStyle} className="title-small">PokéDex</h1>
 
-      <input
-        style={inputStyle}
-        placeholder="Search Pokémon..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', width: '100%', maxWidth: '600px' }}>
+        <input
+          style={inputStyle}
+          placeholder="Search Pokémon..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+          <select
+            style={{
+              padding: '8px 12px',
+              borderRadius: '20px',
+              border: 'none',
+              outline: 'none',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              color: '#333',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              cursor: 'pointer',
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '16px',
+              paddingRight: '32px'
+            }}
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="" style={{ backgroundColor: 'white', color: '#333' }}>All Types</option>
+            {availableTypes.map(type => (
+              <option key={type} value={type} style={{ backgroundColor: 'white', color: '#333' }}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </option>
+            ))}
+          </select>
+          
+          <button
+            style={{
+              padding: '8px 16px',
+              borderRadius: '20px',
+              border: 'none',
+              outline: 'none',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              backgroundColor: showFavoritesOnly ? '#ff6b6b' : 'rgba(255,255,255,0.9)',
+              color: showFavoritesOnly ? 'white' : '#333',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+          >
+            {showFavoritesOnly ? '⭐ Favorites' : '⭐ Show Favorites'}
+          </button>
+        </div>
+      </div>
 
       {(loadingNames || (loadingDetails && pokemon.length === 0)) ? (
         <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
@@ -330,12 +481,14 @@ export default function Pokedex() {
                   steel: ["#d7e0e6", "#9fb0bd"],
                   normal: ["#f5f5f5", "#dcdcdc"]
                 };
-                const colors = typeColors[primaryType] || typeColors.normal;
-                const cardStyle = {
-                  ...cardBaseStyle,
-                  background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
-                  color: "#111",
-                };
+                 const colors = typeColors[primaryType] || typeColors.normal;
+                 // Determine text color based on background brightness
+                 const isLightBackground = primaryType === 'normal' || primaryType === 'fairy' || primaryType === 'ice';
+                 const cardStyle = {
+                   ...cardBaseStyle,
+                   background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
+                   color: isLightBackground ? "#333" : "#fff",
+                 };
 
                 return (
                   <div
@@ -345,9 +498,37 @@ export default function Pokedex() {
                     title={`${p.name} (#${p.id})`}
                     role="button"
                     tabIndex={0}
-                    onKeyPress={() => {}}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handlePokemonClick(p);
+                      }
+                    }}
+                    onClick={() => handlePokemonClick(p)}
                   >
                     <div className="card-inner-gradient">
+                      <button
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          background: 'none',
+                          border: 'none',
+                          fontSize: '1.2rem',
+                          cursor: 'pointer',
+                          zIndex: 10,
+                          filter: favorites.has(p.name) ? 'none' : 'grayscale(100%)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(p.name);
+                        }}
+                        title={favorites.has(p.name) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        {favorites.has(p.name) ? '⭐' : '☆'}
+                      </button>
+                      
                       <img
                         src={p.sprites?.other?.["official-artwork"]?.front_default || p.sprites?.front_default || ""}
                         alt={p.name}
@@ -357,17 +538,21 @@ export default function Pokedex() {
                         }}
                       />
 
-                      <div className="card-name" style={{ color: "#fff" }}>
-                        {p.name}
-                      </div>
+                       <div className="card-name" style={{ color: isLightBackground ? "#333" : "#fff" }}>
+                         {p.name}
+                       </div>
 
-                      <div className="types" aria-hidden="false">
-                        {p.types.map((t) => (
-                          <div key={t.type.name} className="type-pill">
-                            {t.type.name}
-                          </div>
-                        ))}
-                      </div>
+                       <div className="types" aria-hidden="false">
+                         {p.types.map((t) => (
+                           <div 
+                             key={t.type.name} 
+                             className="type-pill"
+                             style={{ color: isLightBackground ? "#333" : "#fff" }}
+                           >
+                             {t.type.name}
+                           </div>
+                         ))}
+                       </div>
 
                       <img
                         src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
@@ -379,6 +564,175 @@ export default function Pokedex() {
                 );
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pokemon Detail Modal */}
+      {selectedPokemon && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setSelectedPokemon(null)}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              padding: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              position: 'relative',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                color: '#666'
+              }}
+              onClick={() => setSelectedPokemon(null)}
+            >
+              ×
+            </button>
+
+            {pokemonDetails[selectedPokemon.name] ? (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <img
+                    src={selectedPokemon.sprites?.other?.["official-artwork"]?.front_default || selectedPokemon.sprites?.front_default || ""}
+                    alt={selectedPokemon.name}
+                    style={{ width: '200px', height: '200px', objectFit: 'contain' }}
+                  />
+                  <h2 style={{ fontSize: '2rem', margin: '10px 0', textTransform: 'capitalize' }}>
+                    {selectedPokemon.name}
+                  </h2>
+                  <p style={{ color: '#666', fontSize: '1.1rem' }}>
+                    #{selectedPokemon.id}
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                  {/* Types */}
+                  <div>
+                    <h3 style={{ marginBottom: '10px', color: '#333' }}>Types</h3>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {selectedPokemon.types.map((t) => (
+                        <span
+                          key={t.type.name}
+                          style={{
+                            backgroundColor: '#f0f0f0',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            fontSize: '0.9rem',
+                            textTransform: 'capitalize'
+                          }}
+                        >
+                          {t.type.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Abilities */}
+                  <div>
+                    <h3 style={{ marginBottom: '10px', color: '#333' }}>Abilities</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {pokemonDetails[selectedPokemon.name].abilities.map((ability, index) => (
+                        <span
+                          key={index}
+                          style={{
+                            backgroundColor: '#e8f4fd',
+                            padding: '6px 12px',
+                            borderRadius: '15px',
+                            fontSize: '0.9rem',
+                            textTransform: 'capitalize'
+                          }}
+                        >
+                          {ability.ability.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div>
+                    <h3 style={{ marginBottom: '10px', color: '#333' }}>Base Stats</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {pokemonDetails[selectedPokemon.name].stats.map((stat, index) => (
+                        <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ textTransform: 'capitalize', fontSize: '0.9rem' }}>
+                            {stat.stat.name.replace('-', ' ')}
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '100px', height: '6px', backgroundColor: '#e0e0e0', borderRadius: '3px', overflow: 'hidden' }}>
+                              <div
+                                style={{
+                                  width: `${Math.min(100, (stat.base_stat / 150) * 100)}%`,
+                                  height: '100%',
+                                  backgroundColor: stat.base_stat > 100 ? '#4caf50' : stat.base_stat > 70 ? '#ff9800' : '#f44336',
+                                  transition: 'width 0.3s ease'
+                                }}
+                              />
+                            </div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '30px' }}>
+                              {stat.base_stat}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Moves */}
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <h3 style={{ marginBottom: '10px', color: '#333' }}>Moves</h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {pokemonDetails[selectedPokemon.name].moves.map((move, index) => (
+                        <span
+                          key={index}
+                          style={{
+                            backgroundColor: '#f5f5f5',
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            textTransform: 'capitalize',
+                            border: '1px solid #e0e0e0'
+                          }}
+                        >
+                          {move.move.name.replace('-', ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div className="pokeball-spinner" style={{ margin: '0 auto' }} />
+                <p style={{ marginTop: '20px', color: '#666' }}>Loading details...</p>
+              </div>
+            )}
           </div>
         </div>
       )}
