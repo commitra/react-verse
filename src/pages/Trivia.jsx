@@ -2,20 +2,20 @@
  * TRIVIA QUIZ DASHBOARD TODOs
  * ---------------------------
  * Easy:
- *  - [ ] Add difficulty selector (easy/medium/hard)
- *  - [ ] Indicate correct answer after selection (current partially does w/ classes; improve UX)
- *  - [ ] Add next question button instead of showing all
- *  - [ ] Shuffle category list order
+ * - [ ] Add difficulty selector (easy/medium/hard)
+ * - [ ] Indicate correct answer after selection (current partially does w/ classes; improve UX)
+ * - [ ] Add next question button instead of showing all
+ * - [ ] Shuffle category list order
  * Medium:
- *  - [ ] Timer per question + bonus points for speed
- *  - [ ] Show progress bar (questions answered / total)
- *  - [x] Local high score persistence
- *  - [ ] Review mode (see all answers after completion)
+ * - [ ] Timer per question + bonus points for speed
+ * - [ ] Show progress bar (questions answered / total)
+ * - [x] Local high score persistence
+ * - [ ] Review mode (see all answers after completion)
  * Advanced:
- *  - [ ] Question set builder (choose amount, difficulty, category)
- *  - [ ] Accessibility: better focus states & keyboard answer selection
- *  - [ ] Multiplayer / shared score (stub for future)
- *  - [ ] Extract quiz logic into hook (useQuiz) for reuse/testing
+ * - [ ] Question set builder (choose amount, difficulty, category)
+ * - [ ] Accessibility: better focus states & keyboard answer selection
+ * - [ ] Multiplayer / shared score (stub for future)
+ * - [ ] Extract quiz logic into hook (useQuiz) for reuse/testing
  */
 
 import { useEffect, useState, useRef } from 'react';
@@ -295,20 +295,26 @@ export default function Trivia() {
           background: #d1ecf1;
         }
 
-        .answer-button.result-correct {
+        /* --- FIX: Changed from .answer-button.result-correct to .result-correct --- */
+        .result-correct {
           border-color: #28a745;
           background: #d4edda;
           color: #155724;
         }
 
-        .answer-button.result-wrong {
+        /* --- FIX: Changed from .answer-button.result-wrong to .result-wrong --- */
+        .result-wrong {
           border-color: #dc3545;
           background: #f8d7da;
           color: #721c24;
         }
 
-        .answer-button.result-neutral {
-          opacity: 0.6;
+        /* --- FIX: Changed from .answer-button.result-neutral to .result-neutral --- */
+        /* --- FIX: Removed opacity: 0.6 and set solid colors --- */
+        .result-neutral {
+          opacity: 1;
+          color: #6c757d;
+          background: #f8f9fa;
         }
 
         .btn-primary {
@@ -443,6 +449,8 @@ export default function Trivia() {
           font-size: 14px;
           background: white;
           cursor: pointer;
+          /* --- FIX: Added dark color for dropdown text --- */
+          color: #333;
         }
 
         .results-container {
@@ -482,6 +490,8 @@ export default function Trivia() {
           margin: 8px 0;
           border-radius: 8px;
           border: 2px solid #ddd;
+          /* --- FIX: Added default dark color --- */
+          color: #333;
         }
       `}</style>
 
