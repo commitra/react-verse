@@ -572,7 +572,7 @@ export default function Trivia() {
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
-            <p style={{ textAlign: 'center', color: '#6c757d', marginBottom: '20px' }}>
+            <p style={{ textAlign: 'center', color: 'white', marginBottom: '20px' }}>
               Question {currentQuestionIndex + 1} of {questions.length}
             </p>
 
