@@ -2,20 +2,20 @@
  * TRIVIA QUIZ DASHBOARD TODOs
  * ---------------------------
  * Easy:
- *  - [ ] Add difficulty selector (easy/medium/hard)
- *  - [ ] Indicate correct answer after selection (current partially does w/ classes; improve UX)
- *  - [ ] Add next question button instead of showing all
- *  - [ ] Shuffle category list order
+ * - [ ] Add difficulty selector (easy/medium/hard)
+ * - [ ] Indicate correct answer after selection (current partially does w/ classes; improve UX)
+ * - [ ] Add next question button instead of showing all
+ * - [ ] Shuffle category list order
  * Medium:
- *  - [ ] Timer per question + bonus points for speed
- *  - [ ] Show progress bar (questions answered / total)
- *  - [x] Local high score persistence
- *  - [ ] Review mode (see all answers after completion)
+ * - [ ] Timer per question + bonus points for speed
+ * - [ ] Show progress bar (questions answered / total)
+ * - [x] Local high score persistence
+ * - [ ] Review mode (see all answers after completion)
  * Advanced:
- *  - [ ] Question set builder (choose amount, difficulty, category)
- *  - [ ] Accessibility: better focus states & keyboard answer selection
- *  - [ ] Multiplayer / shared score (stub for future)
- *  - [ ] Extract quiz logic into hook (useQuiz) for reuse/testing
+ * - [ ] Question set builder (choose amount, difficulty, category)
+ * - [ ] Accessibility: better focus states & keyboard answer selection
+ * - [ ] Multiplayer / shared score (stub for future)
+ * - [ ] Extract quiz logic into hook (useQuiz) for reuse/testing
  */
 
 import { useEffect, useState, useRef } from 'react';
@@ -295,20 +295,22 @@ export default function Trivia() {
           background: #d1ecf1;
         }
 
-        .answer-button.result-correct {
+        .result-correct {
           border-color: #28a745;
           background: #d4edda;
           color: #155724;
         }
 
-        .answer-button.result-wrong {
+        .result-wrong {
           border-color: #dc3545;
           background: #f8d7da;
           color: #721c24;
         }
 
-        .answer-button.result-neutral {
-          opacity: 0.6;
+        .result-neutral {
+          opacity: 1;
+          color: #6c757d;
+          background: #f8f9fa;
         }
 
         .btn-primary {
@@ -432,8 +434,10 @@ export default function Trivia() {
           display: flex;
           flex-direction: column;
           gap: 5px;
-          font-weight: 600;
-          color: #1e4d6b;
+          /* --- FIX: Made bolder and darker --- */
+          font-weight: 700;
+          color: light-white;
+          font-size: 15px;
         }
 
         .controls-section select {
@@ -443,6 +447,7 @@ export default function Trivia() {
           font-size: 14px;
           background: white;
           cursor: pointer;
+          color: #333;
         }
 
         .results-container {
@@ -482,6 +487,7 @@ export default function Trivia() {
           margin: 8px 0;
           border-radius: 8px;
           border: 2px solid #ddd;
+          color: #333;
         }
       `}</style>
 
@@ -566,7 +572,7 @@ export default function Trivia() {
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
-            <p style={{ textAlign: 'center', color: '#6c757d', marginBottom: '20px' }}>
+            <p style={{ textAlign: 'center', color: 'white', marginBottom: '20px' }}>
               Question {currentQuestionIndex + 1} of {questions.length}
             </p>
 
