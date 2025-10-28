@@ -22,6 +22,7 @@ A collection of interactive dashboards that fetch and display data from **free, 
 | 😂 Jokes & Quotes     | [Joke API](https://official-joke-api.appspot.com/) + [Quotable](https://github.com/lukePeavey/quotable) | Daily dose of humor and motivation                |
 | 🐶🐱 Pets             | [Dog CEO](https://dog.ceo/dog-api/) + [Cataas](https://cataas.com/#/)                                   | Random cute dog and cat images                    |
 | 🦠 COVID-19 Tracker   | [COVID19 API](https://covid19api.com/)                                                                  | Track pandemic stats and trends globally          |
+| 📋 Task Flow Board    | [React Flow](https://reactflow.dev/)                                                                    | Visual task management with draggable nodes       |
 
 ---
 
@@ -51,6 +52,9 @@ Then open [http://localhost:5173](http://localhost:5173) in your browser.
 * 🧭 React Router v6
 * 🌐 Fetch API (no external client)
 * 🎨 Custom Light/Dark CSS Theme
+* 🔄 React Flow (for Task Board visualization)
+* 📊 Recharts (for data charts)
+* 🗺️ Leaflet + React Leaflet (for maps)
 
 ---
 

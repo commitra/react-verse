@@ -70,12 +70,25 @@ Jokes & Quotes:
 Pets Dashboard:
 - Persist favorites
 - Download image helper
-  
+
 COVID Dashboard:
+
 - Daily trends line charts
 - Country comparison
-  
+
+Task Flow Board:
+
+- Add color themes for nodes
+- Implement keyboard shortcuts (Delete, Undo)
+- Add task search and filtering
+- Create board templates (Kanban, Sprint Planning)
+- Export/import boards as JSON
+- Add task due dates and calendar view
+- Implement drag-to-connect nodes feature
+- Add task dependencies validation
+
 Global Enhancements:
+
 - Extract API calls into services folder
 - Add custom hooks (useFetch, useLocalStorage)
 - Add tests with Vitest
@@ -83,18 +96,21 @@ Global Enhancements:
 - CI workflow (lint + build)
 
 ## Code Style
+
 - Keep components small & focused
 - Use semantic HTML where practical
 - Prefer descriptive variable names
 - Add `// TODO:` comments for follow-up ideas
 
 ## Submitting a PR
+
 1. Ensure build passes: `npm run build`
 2. Provide a clear title & description (include issue # if applicable)
 3. Screenshots / GIFs for UI changes encouraged
 4. One feature/fix per PR when possible
 
 ## License
+
 By contributing you agree your work is licensed under the project’s MIT License.
 
 Happy hacking! ✨
