@@ -295,22 +295,18 @@ export default function Trivia() {
           background: #d1ecf1;
         }
 
-        /* --- FIX: Changed from .answer-button.result-correct to .result-correct --- */
         .result-correct {
           border-color: #28a745;
           background: #d4edda;
           color: #155724;
         }
 
-        /* --- FIX: Changed from .answer-button.result-wrong to .result-wrong --- */
         .result-wrong {
           border-color: #dc3545;
           background: #f8d7da;
           color: #721c24;
         }
 
-        /* --- FIX: Changed from .answer-button.result-neutral to .result-neutral --- */
-        /* --- FIX: Removed opacity: 0.6 and set solid colors --- */
         .result-neutral {
           opacity: 1;
           color: #6c757d;
@@ -438,8 +434,10 @@ export default function Trivia() {
           display: flex;
           flex-direction: column;
           gap: 5px;
-          font-weight: 600;
-          color: #1e4d6b;
+          /* --- FIX: Made bolder and darker --- */
+          font-weight: 700;
+          color: light-white;
+          font-size: 15px;
         }
 
         .controls-section select {
@@ -449,7 +447,6 @@ export default function Trivia() {
           font-size: 14px;
           background: white;
           cursor: pointer;
-          /* --- FIX: Added dark color for dropdown text --- */
           color: #333;
         }
 
@@ -490,7 +487,6 @@ export default function Trivia() {
           margin: 8px 0;
           border-radius: 8px;
           border: 2px solid #ddd;
-          /* --- FIX: Added default dark color --- */
           color: #333;
         }
       `}</style>
