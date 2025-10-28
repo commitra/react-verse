@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
+// Re-importing icons for the stats
+import { Users, GitFork, Star } from 'lucide-react';
 
 export default function ContributorsWall() {
   const [contributors, setContributors] = useState([]);
+  const [repoInfo, setRepoInfo] = useState(null); // State for repo info
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchContributors = async () => {
+    // Fetch both contributors and repo info at the same time
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          'https://api.github.com/repos/commitra/react-verse/contributors?per_page=100'
-        );
+        const [repoRes, contributorsRes] = await Promise.all([
+          fetch('https://api.github.com/repos/commitra/react-verse'),
+          fetch('https://api.github.com/repos/commitra/react-verse/contributors?per_page=100')
+        ]);
 
-        if (!response.ok) {
-          // This will catch API rate-limit errors (403)
-          throw new Error(`Failed to fetch contributors: ${response.statusText}`);
+        // Check both responses
+        if (!repoRes.ok) {
+          throw new Error(`Failed to fetch repo info: ${repoRes.statusText}`);
+        }
+        if (!contributorsRes.ok) {
+          throw new Error(`Failed to fetch contributors: ${contributorsRes.statusText}`);
         }
 
-        const data = await response.json();
-        setContributors(data);
+        const repoData = await repoRes.json();
+        const contributorsData = await contributorsRes.json();
+
+        setRepoInfo(repoData); // Set the repo info
+        setContributors(contributorsData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,13 +39,27 @@ export default function ContributorsWall() {
       }
     };
 
-    fetchContributors();
+    fetchData();
   }, []); // Empty dependency array ensures this runs once on mount
+
+  // Style object for the new stat boxes
+  // This uses variables from your main stylesheet
+  const statBoxStyle = {
+    background: 'var(--bg-alt)',
+    border: '1px solid var(--border)',
+    padding: '0.5rem 1rem',
+    borderRadius: 'var(--radius)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    color: 'var(--text)'
+  };
 
   if (loading) {
     return (
       <div className="container" style={{ textAlign: 'center', paddingTop: '5rem' }}>
-        {/* Uses the .loading class from your stylesheet */}
         <h2 className="loading">Loading contributors...</h2>
       </div>
     );
@@ -43,7 +68,6 @@ export default function ContributorsWall() {
   if (error) {
     return (
       <div className="container" style={{ textAlign: 'center', paddingTop: '5rem' }}>
-        {/* Uses the .error class from your stylesheet */}
         <h2 className="error">Error: {error}</h2>
         <p>You may have hit the GitHub API rate limit. Please try again later.</p>
       </div>
@@ -51,10 +75,8 @@ export default function ContributorsWall() {
   }
 
   return (
-    // Uses .container for padding and .page-transition for the animation
     <main className="container page-transition">
       
-      {/* Uses .cards-title from your "Recipe" styles for a nice centered header */}
       <h1 className="cards-title" style={{ marginTop: '2rem' }}>
         React-Verse Contributors
       </h1>
@@ -62,7 +84,39 @@ export default function ContributorsWall() {
         Honoring the amazing developers who made this project possible.
       </p>
 
-      {/* Uses the .grid class from your stylesheet for the responsive layout */}
+      {/* --- NEW STATS SECTION --- */}
+      {repoInfo && (
+        // Uses .flex and .wrap from your stylesheet
+        <div 
+          className="flex wrap" 
+          style={{ 
+            justifyContent: 'center', 
+            gap: '1rem', // .gap class is 1rem
+            marginBottom: '3rem' 
+          }}
+        >
+          {/* Stat Box for Stars */}
+          <div style={statBoxStyle}>
+            <Star size={18} style={{ color: 'var(--primary)' }} />
+            <span>{repoInfo.stargazers_count} Stars</span>
+          </div>
+          
+          {/* Stat Box for Forks */}
+          <div style={statBoxStyle}>
+            <GitFork size={18} style={{ color: 'var(--primary)' }} />
+            <span>{repoInfo.forks_count} Forks</span>
+          </div>
+          
+          {/* Stat Box for Contributors */}
+          <div style={statBoxStyle}>
+            <Users size={18} style={{ color: 'var(--primary)' }} />
+            <span>{contributors.length} Contributors</span>
+          </div>
+        </div>
+      )}
+      {/* --- END OF STATS SECTION --- */}
+
+      {/* Uses the .grid class from your stylesheet */}
       <div className="grid">
         {contributors.map((contributor) => (
           <a
@@ -70,29 +124,21 @@ export default function ContributorsWall() {
             href={contributor.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ textDecoration: 'none' }} // Prevents underline on the card
+            style={{ textDecoration: 'none' }}
           >
-            {/* Uses the .card class from your "Recipe" styles.
-              Your CSS file already makes this:
-              - text-align: center
-              - have a background, border, and shadow
-              - animate on hover
-            */}
+            {/* Uses the .card class from your "Recipe" styles */}
             <div className="card">
-              {/* This <img> tag will be styled by your ".card img" rule:
-                - 130px width/height
-                - 50% border-radius (a circle)
-              */}
+              {/* Styled by your ".card img" rule */}
               <img
                 src={contributor.avatar_url}
                 alt={`${contributor.login}'s avatar`}
                 loading="lazy"
               />
               
-              {/* This <h3> will be styled by your ".card h4" or ".card h3" rule */}
+              {/* Styled by your ".card h4" or ".card h3" rule */}
               <h4>{contributor.login}</h4>
               
-              {/* This <p> will be styled by your ".card p" rule */}
+              {/* Styled by your ".card p" rule */}
               <p>{contributor.contributions} contributions</p>
             </div>
           </a>
