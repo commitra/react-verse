@@ -35,7 +35,8 @@ const dashboards = [
   { path: '/covid', title: 'COVID-19 Stats', desc: 'Global & country data' },
   { path: '/pokedex', title: 'Pokédex', desc: 'Explore Pokémon species' },
   { path: '/taskflow', title: 'Task Flow Board', desc: 'Visual task management with nodes' },
-   { path: '/contributors', title: 'Contributor Wall', desc: 'Our Contributors' },
+  { path: '/github-profile-analyzer', title: 'GitHub Profile Analyzer', desc: 'Analyze GitHub profiles and repositories' },
+  { path: '/contributors', title: 'Contributor Wall', desc: 'Our Contributors' },
    
 ];
 

@@ -44,6 +44,7 @@ import Navbar from './components/Navbar.jsx';
 import ContributorsWall from './pages/Contributors.jsx'
 import Pokedex from './pages/Pokedex.jsx';
 import TaskFlowBoard from './pages/TaskFlowBoard.jsx';
+import GitHubProfileAnalyzer from './pages/GitHubProfileAnalyzer.jsx';
 
 // TODO: Extract theme state into context (see todo 5).
 import { useState, useEffect } from 'react';
@@ -84,6 +85,7 @@ export default function App() {
             <Route path="/contributors" element={<ContributorsWall />} />    
             <Route path="/pokedex" element={<Pokedex />} />  
             <Route path="/taskflow" element={<TaskFlowBoard />} />
+            <Route path="/github-profile-analyzer" element={<GitHubProfileAnalyzer />} />
         </Routes>
       </main>
     </div>
