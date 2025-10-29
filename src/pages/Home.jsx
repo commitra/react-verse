@@ -34,6 +34,7 @@ const dashboards = [
   { path: '/pets', title: 'Pets Images', desc: 'Random dog & cat images' },
   { path: '/covid', title: 'COVID-19 Stats', desc: 'Global & country data' },
   { path: '/pokedex', title: 'Pokédex', desc: 'Explore Pokémon species' },
+  { path: '/taskflow', title: 'Task Flow Board', desc: 'Visual task management with nodes' },
    { path: '/contributors', title: 'Contributor Wall', desc: 'Our Contributors' },
    
 ];
