@@ -87,6 +87,13 @@ Task Flow Board:
 - Implement drag-to-connect nodes feature
 - Add task dependencies validation
 
+GitHub Profile Analyzer:
+- View GitHub profile stats, repositories, and pull request activity at a glance
+- Compare two profiles side-by-side
+- Language usage and repo stats charts
+- Contribution calendar visualization
+- Error handling for missing/invalid tokens
+
 Global Enhancements:
 
 - Extract API calls into services folder

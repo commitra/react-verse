@@ -23,6 +23,7 @@ A collection of interactive dashboards that fetch and display data from **free, 
 | 🐶🐱 Pets             | [Dog CEO](https://dog.ceo/dog-api/) + [Cataas](https://cataas.com/#/)                                   | Random cute dog and cat images                    |
 | 🦠 COVID-19 Tracker   | [COVID19 API](https://covid19api.com/)                                                                  | Track pandemic stats and trends globally          |
 | 📋 Task Flow Board    | [React Flow](https://reactflow.dev/)                                                                    | Visual task management with draggable nodes       |
+| 🧑‍💻 GitHub Profile Analyzer | [GitHub GraphQL API](https://docs.github.com/en/graphql) | Discover, analyze, and compare GitHub profiles with advanced stats and insights |
 
 ---
 
