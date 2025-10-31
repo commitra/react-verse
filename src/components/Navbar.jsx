@@ -16,6 +16,7 @@ export default function Navbar({ theme, toggleTheme }) {
         <li><NavLink to="/jokes-quotes">Jokes & Quotes</NavLink></li>
         <li><NavLink to="/pets">Pets</NavLink></li>
         <li><NavLink to="/covid">COVID-19</NavLink></li>
+        <li><NavLink to="/github-analyzer">GitHub Analyzer</NavLink></li>
         <li className="theme-item">
           <button 
             className="theme-toggle" 
